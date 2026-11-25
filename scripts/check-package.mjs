@@ -35,7 +35,7 @@ const read = (f) => readFileSync(join(out, f), 'utf8');
 const has = new Set(files);
 
 // 1-3: só entra o que é da extensão
-const ALLOWED = /^(manifest\.json|src\/(background|content|popup|shared|theme)\/[^/]+\.(js|css|html)|assets\/(fonts\/[^/]+\.(woff2|txt)|icons\/[^/]+\.svg|sounds\/(message|call-outgoing|call-incoming)\.mp3|sounds\/NOTICE\.md))$/;
+const ALLOWED = /^(manifest\.json|LICENSE|src\/(background|content|popup|shared|theme)\/[^/]+\.(js|css|html)|assets\/(fonts\/[^/]+\.(woff2|txt)|icons\/[^/]+\.svg|sounds\/(message|call-outgoing|call-incoming)\.mp3|sounds\/NOTICE\.md))$/;
 for (const f of files) if (!ALLOWED.test(f)) fail(`não devia estar no pacote: ${f}`);
 
 // 4: tudo o que é pedido existe

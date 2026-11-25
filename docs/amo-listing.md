@@ -11,7 +11,7 @@ npm run package
 
 Roda o `web-ext lint` (tem que dar 0 erros e 0 avisos), gera
 `web-ext-artifacts/holo-messenger-<versão>.zip` e confere o zip com
-`scripts/check-package.mjs`: só entram `manifest.json`, `src/` e `assets/`,
+`scripts/check-package.mjs`: só entram `manifest.json`, `LICENSE`, `src/` e `assets/`,
 nada falta e o diagnóstico de som não volta. Se algo estiver errado, ele para
 e diz o arquivo.
 
@@ -59,7 +59,9 @@ de mentira dos testes, sem nenhuma conversa real.
 **Site / suporte:** https://github.com/Rafaalex21/holo-messenger (problemas em
 `/issues`). E-mail de suporte: deixar em branco.
 
-**Licença:** escolha do dono (ver "Decisões pendentes").
+**Licença:** MIT (decidido em 25/11/2026). Vale só para o código: os sons
+ficam de fora (`assets/sounds/NOTICE.md`) e as fontes são OFL. O arquivo
+`LICENSE` vai no zip.
 
 **Política de privacidade:** não precisa. O manifest declara
 `data_collection_permissions: none`.
@@ -91,12 +93,8 @@ de mentira dos testes, sem nenhuma conversa real.
 >   (© CD PROJEKT RED), included in a non-commercial fan project; see
 >   `assets/sounds/NOTICE.md`. Fonts are OFL (`assets/fonts/OFL.txt`).
 
-## Decisões pendentes (do dono)
+## Para lembrar
 
-- **Licença do código.** Hoje o `package.json` diz `UNLICENSED` e não há
-  arquivo LICENSE. Para a ficha, a sugestão é MIT para o código, com os sons
-  fora dela (o `NOTICE.md` já diz isso). Outra opção é "Todos os direitos
-  reservados".
 - **Id da extensão:** `holo-messenger@local`. Depois do primeiro envio não
   muda mais: as atualizações só chegam a quem instalou se o id for o mesmo.
 - **Sons:** os três vão na versão da loja, decidido em 25/11/2026. Se a

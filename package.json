@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Tema estilo Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web (extensão Firefox).",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "dev": "node scripts/run-firefox.mjs .",
     "lint": "web-ext lint",
