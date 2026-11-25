@@ -68,29 +68,32 @@
   display: none !important;
 }
 
-/* Moldura chanfrada dos balões, toda POR CIMA do conteúdo:
- *   ::after  → borda reta de 1 px nos quatro lados (o canto some no clip-path);
- *   ::before → a diagonal: uma barra girada 45° (girada, ganha antisserrilhado
- *              de verdade; gradiente virava escadinha). A barra tem a linha
- *              (--holo-diag-w) e, para dentro, uma faixa da cor do balão
- *              (--holo-diag-gap): foto, vídeo ou citação que encosta no canto
- *              é cortada em paralelo à diagonal, com a mesma folga dos lados
- *              retos, em vez de sumir rente à linha.
- * O balão tem filhos absolutos (botões de mídia com z-index até 100, a
- * setinha do menu no hover) que cobriam a borda; o clip-path já cria um
- * contexto de empilhamento, então o z-index 101 fica preso dentro do balão.
- * O polígono passa 2 px para fora nos lados retos: com rolagem em posição
- * fracionária, um recorte exatamente na borda comia a linha de 1 px.
- * Geometria: o lado de fora da barra fica exatamente sobre a linha do
- * clip-path (centro recuado meia altura para dentro, × cos 45° = .3536). */
+/* Moldura chanfrada dos balões, toda POR CIMA do conteúdo.
+ *
+ * ::after → a moldura inteira como UMA forma: fundo na cor da linha recortado
+ *           por um clip-path em anel (contorno de fora + contorno de dentro,
+ *           regra evenodd). Lados retos e diagonal passam pelo mesmo
+ *           rasterizador, então não há emenda para desalinhar — a versão com
+ *           borda + barra girada escorregava alguns px no Firefox.
+ *           Espessura 1 px em tudo: a diagonal de dentro fica cut + √2·1 px.
+ * ::before → triângulo na cor do balão logo atrás da diagonal: foto, vídeo
+ *           ou citação que encosta no canto é cortada em paralelo à linha,
+ *           com a mesma folga dos lados retos (--holo-diag-gap).
+ * O próprio balão continua recortado (fundo e conteúdo fora do canto):
+ *   - 2 px para fora nos lados retos (rolagem em posição fracionária comia
+ *     a linha de cima quando o recorte ficava exatamente na borda);
+ *   - a diagonal dele fica .5 px para fora da diagonal da moldura, para a
+ *     borda antisserrilhada não ser cortada duas vezes.
+ * O balão tem filhos absolutos com z-index até 100 (botões de mídia, a
+ * setinha do menu no hover); o clip-path cria contexto de empilhamento, então
+ * o z-index 101 das camadas fica preso dentro do balão. */
 :root[data-holo] [data-holo-bubble] {
   --holo-cut: 9px;
-  --holo-diag-w: 1.25px;
   --holo-diag-gap: 2px;
-  --holo-diag-h: calc(var(--holo-diag-w) + var(--holo-diag-gap));
-  /* comprimento exato da diagonal (cut·√2): 1 px a mais fazia as pontas
-     passarem do lado de fora das bordas reta — dois "chifrinhos" no canto */
-  --holo-diag-len: calc(var(--holo-cut) * 1.4142);
+  /* fim do triângulo de folga: diagonal + 1 px de linha + folga, medidos na perpendicular */
+  --holo-diag-k: calc(var(--holo-cut) + (1px + var(--holo-diag-gap)) * 1.4142);
+  /* diagonal de dentro da moldura, nos dois eixos: cut + (√2 − 1)·1 px */
+  --holo-cut-in: calc(var(--holo-cut) + .4142px);
   position: relative;
   border: 0 !important;
   border-radius: 0 !important;
@@ -102,39 +105,47 @@
 :root[data-holo] [data-holo-bubble]::after {
   content: "";
   position: absolute;
+  inset: 0;
   z-index: 101;
   pointer-events: none;
 }
 
-:root[data-holo] [data-holo-bubble]::after {
-  inset: 0;
-  border: var(--holo-border) solid var(--holo-cut-line);
-}
-
 :root[data-holo] [data-holo-bubble]::before {
-  width: var(--holo-diag-len);
-  height: var(--holo-diag-h);
-  top: calc(var(--holo-cut) / 2 - var(--holo-diag-h) / 2 + var(--holo-diag-h) * .3536);
-  /* girada, o "embaixo" da barra aponta para dentro do balão nos dois lados */
-  background: linear-gradient(to bottom, var(--holo-cut-line) 0 var(--holo-diag-w), var(--holo-cut-bg) var(--holo-diag-w));
+  background: var(--holo-cut-bg);
 }
 
+:root[data-holo] [data-holo-bubble]::after {
+  background: var(--holo-cut-line);
+}
+
+/* recebido: canto de cima à esquerda */
 :root[data-holo] [data-holo-bubble="in"] {
-  clip-path: polygon(calc(var(--holo-cut) + 2px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 2px));
+  clip-path: polygon(calc(var(--holo-cut) + 1.5px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 1.5px));
 }
 
 :root[data-holo] [data-holo-bubble="in"]::before {
-  left: calc(var(--holo-cut) / 2 - var(--holo-diag-len) / 2 + var(--holo-diag-h) * .3536);
-  transform: rotate(-45deg);
+  clip-path: polygon(0 0, var(--holo-diag-k) 0, 0 var(--holo-diag-k));
 }
 
+:root[data-holo] [data-holo-bubble="in"]::after {
+  clip-path: polygon(evenodd,
+    var(--holo-cut) 0, 100% 0, 100% 100%, 0 100%, 0 var(--holo-cut), var(--holo-cut) 0,
+    var(--holo-cut-in) 1px, 1px var(--holo-cut-in), 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px), calc(100% - 1px) 1px, var(--holo-cut-in) 1px);
+}
+
+/* enviado: canto de cima à direita (espelho) */
 :root[data-holo] [data-holo-bubble="out"] {
-  clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 2px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 2px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
+  clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 1.5px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 1.5px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
 }
 
 :root[data-holo] [data-holo-bubble="out"]::before {
-  right: calc(var(--holo-cut) / 2 - var(--holo-diag-len) / 2 + var(--holo-diag-h) * .3536);
-  transform: rotate(45deg);
+  clip-path: polygon(100% 0, 100% var(--holo-diag-k), calc(100% - var(--holo-diag-k)) 0);
+}
+
+:root[data-holo] [data-holo-bubble="out"]::after {
+  clip-path: polygon(evenodd,
+    0 0, calc(100% - var(--holo-cut)) 0, 100% var(--holo-cut), 100% 100%, 0 100%, 0 0,
+    1px 1px, 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px), calc(100% - 1px) var(--holo-cut-in), calc(100% - var(--holo-cut-in)) 1px, 1px 1px);
 }
 
 /* mídia (foto, vídeo, cartão de link) sem cantos arredondados próprios */
