@@ -67,9 +67,38 @@
   // (--hs-t/r/b/l, lidos pelo _conversation.css) e a espessura vira 1 pixel
   // da tela (--holo-lw), também com o Windows em 125 %/150 %.
   // Só lê posição e tamanho dos balões.
+  // F8.3 (conversa longa sem travar):
+  //  - só os balões a até uma altura de tela de distância (conjunto `near`,
+  //    mantido por um IntersectionObserver no painel de mensagens). O custo
+  //    não cresce com o tamanho da conversa, e quem chega perto da tela é
+  //    ajustado antes de aparecer;
+  //  - ler posição logo depois de o WhatsApp mexer no DOM obriga o navegador
+  //    a refazer o layout ali dentro (3–4 ms com 700 mensagens). Por isso lê
+  //    um quadro depois, com o layout já feito pelo próprio navegador.
   let snapFrame = 0;
-  const queueSnap = () => { if (!snapFrame) snapFrame = requestAnimationFrame(snapFrames); };
+  const queueSnap = () => {
+    if (!snapFrame) snapFrame = requestAnimationFrame(() => { snapFrame = requestAnimationFrame(snapFrames); });
+  };
   const frameResize = new ResizeObserver(queueSnap); // balão mudou de tamanho (foto carregou, reação…)
+
+  const near = new Set();
+  let nearIO = null;
+  let nearRoot; // painel observado (null = a janela, se o painel não for achado)
+  const watchNear = (panel) => {
+    if (nearIO && panel === nearRoot) return;
+    if (nearIO) nearIO.disconnect();
+    near.clear();
+    nearRoot = panel;
+    nearIO = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) near.add(e.target);
+        else near.delete(e.target);
+      }
+      queueSnap();
+    }, { root: panel, rootMargin: '100% 0px' });
+    for (const el of (panel || document).querySelectorAll('[data-holo-bubble]')) nearIO.observe(el);
+  };
+
   const toPx = (n) => `${Math.round(n * 1000) / 1000}px`;
   function snapFrames() {
     snapFrame = 0;
@@ -78,11 +107,13 @@
     const lw = toPx(Math.max(1, Math.floor(dpr)) / dpr);
     if (root.style.getPropertyValue('--holo-lw') !== lw) root.style.setProperty('--holo-lw', lw);
     const snap = (v) => Math.round(v * dpr) / dpr;
-    const list = [...document.querySelectorAll('[data-holo-bubble]')];
+    for (const el of near) if (!el.isConnected) near.delete(el);
+    const list = [...near];
     const rects = list.map((el) => el.getBoundingClientRect()); // todas as leituras antes das escritas
     list.forEach((el, i) => {
       const r = rects[i];
-      if (!r.width || el.closest('[data-holo-new]')) return; // invisível ou no meio do glitch
+      if (!r.width) return; // invisível
+      if (el.closest('[data-holo-new]')) return; // no meio do glitch
       const key = [snap(r.top) - r.top, r.right - snap(r.right), r.bottom - snap(r.bottom), snap(r.left) - r.left].map(toPx);
       if (el.__holoSnap === key.join()) return;
       el.__holoSnap = key.join();
@@ -90,8 +121,9 @@
     });
   }
   window.addEventListener('resize', queueSnap); // janela, zoom (muda o devicePixelRatio)
-  // rolagem suave pode parar em fração de pixel
-  document.addEventListener('scrollend', queueSnap, { capture: true, passive: true });
+  // rolagem: balões chegando perto da tela, e a rolagem suave pode parar em
+  // fração de pixel (um snap por quadro, no máximo)
+  document.addEventListener('scroll', queueSnap, { capture: true, passive: true });
 
   // ------------------------------------------------------------ balões
   const BUBBLE_DEPTH = 6;
@@ -106,6 +138,7 @@
         if (dir) {
           el.setAttribute('data-holo-bubble', dir);
           frameResize.observe(el);
+          if (nearIO) nearIO.observe(el);
           container.setAttribute('data-holo-dir', dir);
           return dir;
         }
@@ -151,7 +184,7 @@
 
   // -------------------------------------------------- separadores de data
   // candidatos: tudo no painel que NÃO está dentro de uma linha de mensagem
-  const CHIP_CANDIDATES = 'div:not([role="row"], [role="row"] *, [data-holo-chip]), span:not([role="row"] *, [data-holo-chip])';
+  const CHIP_CANDIDATES = `div:not(${SEL.msgRow}, ${SEL.msgRow} *, [data-holo-chip]), span:not(${SEL.msgRow} *, [data-holo-chip])`;
   const scanChips = (scope, panel, tk) => {
     if (!panel) return;
     const base = scope.contains(panel) ? panel : panel.contains(scope) ? scope : null;
@@ -167,17 +200,14 @@
   // (contato, grupo, canal, comunidade) num lugar diferente. Aqui só o número
   // é copiado para o pai do nome; o CSS desenha e esconde a bolinha original
   // apenas nas linhas marcadas (se isto falhar, a bolinha continua lá).
-  const UNREAD = '[data-testid="icon-unread-count"]';
-  const LIST_ROW = '[data-testid="cell-frame-container"]';
-  const LIST_NAME = '[data-testid="cell-frame-title"] span[title]';
   const scanUnread = () => {
-    const side = document.getElementById('pane-side');
+    const side = document.querySelector(SEL.sidePane);
     if (!side) return;
-    for (const row of side.querySelectorAll(LIST_ROW)) {
-      const name = row.querySelector(LIST_NAME);
+    for (const row of side.querySelectorAll(SEL.listRow)) {
+      const name = row.querySelector(SEL.listName);
       const host = name && name.parentElement;
       if (!host) continue;
-      const badge = row.querySelector(UNREAD);
+      const badge = row.querySelector(SEL.unreadBadge);
       // só os dígitos do contador; sem número ("marcada como não lida") vira um ponto
       const n = badge ? (badge.textContent || '').replace(/\D/g, '') || '•' : null;
       if (n === null) host.removeAttribute('data-holo-unread');
@@ -299,6 +329,7 @@
     const tk = tokens();
     if (!tk.in) return; // CSS do tema ainda não aplicado
     const panel = find(SEL.messagesPanel, main);
+    watchNear(panel); // outra conversa = outro painel
     // varredura completa ao ligar o tema ou quando o WhatsApp troca um bloco
     // que contém o #main inteiro (abrir outra conversa, recarregar o app)
     if (fullScan || [...added].some((n) => n.isConnected && n.contains(main))) {
@@ -322,7 +353,7 @@
 
   new MutationObserver((records) => {
     if (!current || !current.enabled) return;
-    const side = document.getElementById('pane-side');
+    const side = document.querySelector(SEL.sidePane);
     for (const r of records) {
       // lista de conversas mudou (nova linha, contador trocou de 1 para 2…)
       if (!unreadDirty && side && side.contains(r.target)) unreadDirty = true;

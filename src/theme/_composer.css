@@ -7,6 +7,7 @@
  *   [data-testid="conversation-compose-box-input"]   (contenteditable, role=textbox)
  *   o fundo arredondado do campo fica no avô do input
  *   footer button[aria-label="Anexar" | "Emojis, GIFs, figurinhas" | "Mensagem de voz" | "Enviar"]
+ *   footer button[aria-label*="send" i]               "Enviar" em inglês (reserva)
  *   .holo-footer                                      injetado pelo content.js
  */
 

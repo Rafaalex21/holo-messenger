@@ -6,9 +6,12 @@
  *   [data-testid^="conversation-background"]       papel de parede (doodle)
  *   #main header[data-testid="conversation-header"]
  *   [data-testid="conversation-info-header-chat-title"]
+ *   [data-testid="conversation-panel-messages"]    painel rolável das mensagens
+ *   [role="row"]                                    linha de mensagem dentro do painel
  *   [data-testid="msg-container"][data-holo-dir]   marcado pelo content.js
  *   [data-holo-bubble="in|out"]                    elemento que pinta o balão (content.js)
  *   [data-testid="tail-in"], [data-testid="tail-out"]
+ *   [data-testid="selectable-text"]                texto da mensagem (só cor; nunca lido)
  *   [data-testid="msg-meta"], [data-testid="quoted-message"], [data-testid="author"]
  *   [data-testid="reaction-bubble"], [data-testid="addon-bubble-container"]
  *   [data-holo-chip="date"]                        separador de data (content.js)

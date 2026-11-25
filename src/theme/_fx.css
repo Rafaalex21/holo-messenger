@@ -6,6 +6,7 @@
  * === SELECTORS ===
  *   [data-holo-dir="in|out"]   msg-container marcado pelo content.js
  *   [data-holo-new]            mensagem recebida que acabou de chegar (content.js, ~370 ms)
+ *   [data-testid="conversation-info-header-chat-title"], #side header h1   brilho nos títulos
  */
 
 /* ---------- glow ----------

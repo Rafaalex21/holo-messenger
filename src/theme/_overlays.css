@@ -6,7 +6,7 @@
  * Os seletores abaixo são os papéis ARIA genéricos; confirmar na próxima
  * inspeção (npm run recon) e ajustar.
  *   [role="menu"], [role="menuitem"], [role="application"] ul > li
- *   [role="dialog"]
+ *   [role="dialog"], [role="heading"]                título de modal e de painel
  *   [role="tooltip"]
  *   [data-testid="drawer-right"], [data-testid="drawer-left"], [data-testid="drawer-title-body"]
  */

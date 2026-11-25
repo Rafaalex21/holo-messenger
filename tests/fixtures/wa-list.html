@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — lista de conversas</title>
+  <!--
+    Código nosso (pode ir para o repositório). Lista de conversas com a mesma
+    estrutura que o tema usa no WhatsApp (docs/selectors.md, C2/C3):
+    #pane-side, linha role=row, cell-frame-container, cell-frame-title com o
+    nome num span[title] e o contador icon-unread-count. Nomes são lorem.
+    ?wa=mudou simula uma atualização do WhatsApp que troca o data-testid do
+    contador: o tema tem que deixar a bolinha original como está.
+    Abrir com ?holo=1 (scripts/serve-fixtures.mjs).
+  -->
+  <style>
+    body { margin: 0; font: 15px system-ui, sans-serif; background: #111; color: #ddd; }
+    #pane-side { width: 360px; }
+    [role="row"] { padding: 10px 14px; border-bottom: 1px solid #222; }
+    [data-testid="cell-frame-container"] { display: flex; flex-direction: column; gap: 4px; }
+    .top, .bottom { display: flex; align-items: center; gap: 8px; }
+    [data-testid="cell-frame-title"] { display: flex; flex: 1; min-width: 0; }
+    [data-testid="cell-frame-title"] span[title] { flex-grow: 1; }
+    .badge { margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: 10px; background: #21c063; color: #111; text-align: center; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="side">
+    <div id="pane-side">
+      <div role="grid" aria-label="Lista de conversas">
+        <div role="row" data-testid="list-item-1" aria-selected="false">
+          <div data-testid="cell-frame-container">
+            <div class="top"><div data-testid="cell-frame-title"><span title="lorem ipsum" dir="auto">lorem ipsum</span></div><div data-testid="chat-list-timestamp">10:21</div></div>
+            <div class="bottom"><span data-testid="cell-frame-secondary">dolor sit amet</span><span><span class="badge" data-testid="icon-unread-count" aria-label="3 mensagens não lidas">3</span></span></div>
+          </div>
+        </div>
+        <div role="row" data-testid="list-item-2" aria-selected="false">
+          <div data-testid="cell-frame-container">
+            <div class="top"><div data-testid="cell-frame-title"><span title="dolor sit" dir="auto">dolor sit</span></div><div data-testid="chat-list-timestamp">10:20</div></div>
+            <div class="bottom"><span data-testid="cell-frame-secondary">consectetur</span></div>
+          </div>
+        </div>
+        <div role="row" data-testid="list-item-3" aria-selected="false">
+          <div data-testid="cell-frame-container">
+            <div class="top"><div data-testid="cell-frame-title"><span title="amet elit" dir="auto">amet elit</span></div><div data-testid="chat-list-timestamp">ontem</div></div>
+            <!-- "marcar como não lida": bolinha sem número -->
+            <div class="bottom"><span data-testid="cell-frame-secondary">adipiscing</span><span><span class="badge" data-testid="icon-unread-count" aria-label="Não lida"></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section aria-label="Ações">
+    <button type="button" id="more">Chega outra mensagem na primeira</button>
+    <button type="button" id="read">Ler a primeira</button>
+  </section>
+
+  <script>
+    // ?wa=mudou: o WhatsApp trocou o data-testid do contador
+    if (new URLSearchParams(location.search).get('wa') === 'mudou') {
+      for (const b of document.querySelectorAll('[data-testid="icon-unread-count"]')) b.dataset.testid = 'unread-count-v2';
+    }
+    const first = () => document.querySelector('[data-testid="list-item-1"] .badge');
+    document.getElementById('more').onclick = () => {
+      const b = first();
+      b.textContent = String(Number(b.textContent) + 1);
+    };
+    document.getElementById('read').onclick = () => first().parentElement.remove();
+  </script>
+</body>
+</html>

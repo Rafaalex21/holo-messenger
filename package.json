@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/run-firefox.mjs .",
-    "lint": "web-ext lint",
+    "lint": "web-ext lint && node scripts/check-selectors.mjs",
     "build": "web-ext build --overwrite-dest --filename holo-messenger-{version}.zip",
     "test": "playwright test",
     "prepare": "git config core.hooksPath .githooks",

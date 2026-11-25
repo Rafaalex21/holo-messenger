@@ -28,6 +28,11 @@
  */
 (() => {
   const root = document.documentElement;
+  // selectors.js roda antes, neste mesmo mundo: copia e some com as globais,
+  // para a página do WhatsApp não ver nada da extensão
+  const SEL = globalThis.HOLO_SEL;
+  delete globalThis.HOLO_SEL;
+  delete globalThis.HOLO_SEL_FIND;
   const WA_SOUND = /^https:\/\/static\.whatsapp\.net\/rsrc\.php\/.+\.(mp3|ogg|m4a)$/;
 
   // Arquivos conhecidos (docs/sound-investigation.md). O hash muda em deploys
@@ -66,8 +71,8 @@
   };
 
   // ---- ligação feita: troca o "tu… tu…" que vem no áudio da chamada ----
-  const CALL_SCREEN = '[data-testid="voip-container-audio-call"]'; // só voz; vídeo fica intacto
-  const ANSWERED = '[data-testid="voip-call-timer"]';
+  const CALL_SCREEN = SEL.voiceCallScreen; // só voz; vídeo fica intacto
+  const ANSWERED = SEL.callTimer;
   const MAX_RING_MS = 70000; // trava de segurança: nunca deixa a chamada muda por mais que isso
 
   let ring = null; // { el, wasMuted, observer, timer }

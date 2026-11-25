@@ -9,6 +9,9 @@
  * O tema é sempre escuro: body.light recebe os mesmos valores.
  *
  * Seletores de componentes ficam para a Fase 4 (_sidebar, _conversation…).
+ *
+ * === SELECTORS === (docs/selectors.md §3)
+ *   #app          raiz do WhatsApp (links e foco)
  */
 
 :root[data-holo],

@@ -8,10 +8,13 @@
  *   [data-testid="navbar-primary-section"] button[aria-pressed]
  *   [data-testid^="list-item-"]                    linha da lista (role=row)
  *   #pane-side [aria-selected="true"]              conversa aberta
+ *   [data-testid="cell-frame-container"]           conteúdo da linha (marca data-holo-unread)
  *   [data-testid="cell-frame-title" | "cell-frame-secondary" | "chat-list-timestamp"]
  *   [data-testid="icon-unread-count"]
  *   [data-testid="chat-list-search-container"]     busca (o fundo fica no avô do <input>)
  *   [data-testid="filter-button"] button[aria-pressed]   #all-filter…
+ *   [data-testid="chat_list_filters_row"] button   linha dos filtros
+ *   #side header [role="heading"]                   título "WhatsApp"
  */
 
 /* cantos arredondados do WhatsApp que vêm por variável */

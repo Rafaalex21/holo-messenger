@@ -36,6 +36,7 @@
         "https://web.whatsapp.com/*"
       ],
       "js": [
+        "src/shared/selectors.js",
         "src/content/page-hook.js"
       ],
       "run_at": "document_start",

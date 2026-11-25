@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — conversa longa</title>
+  <!--
+    Código nosso (pode ir para o repositório). A mesma estrutura de
+    wa-chat.html, mas com ?n= mensagens (padrão 300) e os dois jeitos de o
+    WhatsApp mexer numa conversa longa: carregar 40 mensagens antigas no
+    topo (rolar para cima) e chegar uma nova no fim. Texto lorem.
+    Abrir com ?holo=1 (scripts/serve-fixtures.mjs). Usado pela F8.3.
+  -->
+  <style>
+    body { margin: 0; font: 15.5px/1.4 system-ui, sans-serif; background: #111; }
+    #main { position: absolute; inset: 0 0 40px 0; display: flex; flex-direction: column; }
+    [data-testid="conversation-panel-messages"] { flex: 1; overflow-y: auto; padding: 10.4px 0 40px; }
+    [role="row"] { display: flex; margin: 0 0 14.3px; }
+    [role="row"].in { padding-left: 63.4px; }
+    [role="row"].out { justify-content: flex-end; padding-right: 37.6px; }
+    [data-testid="msg-container"] { position: relative; max-width: 61.3%; padding: 0 8px; }
+    .in .bubble { background: var(--holo-in-bg, #fff); }
+    .out .bubble { background: var(--holo-out-bg, #dcf8c6); }
+    .bubble { padding: 6.2px 7px 8.3px 9px; }
+    [data-testid="quoted-message"] > div { padding: 4.6px 8px; margin-bottom: 4px; }
+    [data-testid="msg-meta"] { float: right; margin: 6px 0 -4px 10px; font-size: 11px; }
+    [data-testid="addon-bubble-container"] { position: absolute; left: 10px; bottom: -19px; }
+    nav { position: fixed; bottom: 0; left: 0; }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <div data-testid="conversation-panel-messages"></div>
+  </div>
+  <nav>
+    <button type="button" id="older">Carregar mais antigas</button>
+    <button type="button" id="incoming">Chega mensagem</button>
+  </nav>
+  <script>
+    const panel = document.querySelector('[data-testid="conversation-panel-messages"]');
+    const WORDS = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore'.split(' ');
+    let seq = 0;
+    const text = (i) => WORDS.slice(0, 3 + (i * 7) % 12).join(' ');
+    const row = (dir) => {
+      const i = seq++;
+      const r = document.createElement('div');
+      r.setAttribute('role', 'row');
+      r.className = dir;
+      // espaço entre linhas em frações diferentes: cada balão fica numa fração
+      // de pixel própria, como no WhatsApp (fotos, reações, dias)
+      r.style.marginBottom = `${(14.3 + (i % 7) * 0.13).toFixed(2)}px`;
+      const quote = i % 9 === 4 ? `<div data-testid="quoted-message"><div>${text(i + 3)}</div></div>` : '';
+      const reaction = i % 11 === 5 ? '<div data-testid="addon-bubble-container"><button type="button" data-testid="reaction-bubble">♥ 1</button></div>' : '';
+      r.innerHTML = `<div data-testid="msg-container"><div class="bubble">${quote}<span data-testid="selectable-text">${text(i)}</span><span data-testid="msg-meta">10:${String(i % 60).padStart(2, '0')}</span></div>${reaction}</div>`;
+      return r;
+    };
+    const dirOf = (i) => (i % 3 === 0 ? 'out' : 'in');
+
+    const n = Number(new URLSearchParams(location.search).get('n')) || 300;
+    const first = document.createDocumentFragment();
+    for (let i = 0; i < n; i++) first.append(row(dirOf(i)));
+    panel.append(first);
+    panel.scrollTop = panel.scrollHeight;
+
+    // rolar até o topo: o WhatsApp põe um bloco de mensagens antigas em cima
+    // e a mensagem que estava na tela fica no mesmo lugar (o Firefox às vezes
+    // já segura sozinho, pela ancoragem de rolagem; aqui só corrige o que faltar)
+    document.getElementById('older').onclick = () => {
+      const anchor = panel.firstElementChild;
+      const before = anchor.getBoundingClientRect().top;
+      const block = document.createDocumentFragment();
+      for (let i = 0; i < 40; i++) block.append(row(dirOf(i)));
+      panel.prepend(block);
+      panel.scrollTop += anchor.getBoundingClientRect().top - before;
+    };
+    document.getElementById('incoming').onclick = () => {
+      panel.append(row('in'));
+      panel.scrollTop = panel.scrollHeight;
+    };
+  </script>
+</body>
+</html>
