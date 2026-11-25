@@ -16,3 +16,10 @@ docs/ref/*.jpg
 
 # arquivos baixados pelo script de inspeção antes de serem sanitizados/revisados
 docs/recon/raw/
+
+# fixture com o CSS/DOM do WhatsApp (código da Meta): só local, nunca no repo público
+tests/fixtures/wa-snapshot.html
+
+# perfis do Firefox com o login do WhatsApp — NUNCA versionar
+.recon-profile/
+.recon-ff-profile/

@@ -81,15 +81,20 @@
     window.Notification = NotifHook;
     R.notificationPermission = N.permission;
   }
+  // título "(N) WhatsApp": só o número é registrado, nunca o texto do título.
+  // No document_start ainda não há <head>, então espera ele existir.
   let lastUnread = null;
-  const titleEl = document.querySelector('title');
-  if (titleEl) {
-    new MutationObserver(() => {
-      const m = document.title.match(/^\((\d+)\)/);
-      const n = m ? Number(m[1]) : 0;
-      if (n !== lastUnread) { log('title', { unread: n }); lastUnread = n; }
-    }).observe(titleEl, { childList: true, characterData: true, subtree: true });
-  }
+  const checkTitle = () => {
+    const m = document.title.match(/\((\d+)\)/);
+    const n = m ? Number(m[1]) : 0;
+    if (n !== lastUnread) { log('title', { unread: n, countAtStart: /^\(\d+\)/.test(document.title) }); lastUnread = n; }
+  };
+  const watchTitle = () => {
+    if (!document.head) { setTimeout(watchTitle, 200); return; }
+    new MutationObserver(checkTitle).observe(document.head, { childList: true, characterData: true, subtree: true });
+    checkTitle();
+  };
+  watchTitle();
   // recursos de áudio já carregados antes do script
   R.preloadedAudio = performance.getEntriesByType('resource')
     .filter((e) => /\.(mp3|ogg|oga|wav|m4a|aac|opus)(\?|$)/i.test(e.name) || e.initiatorType === 'audio')
@@ -106,7 +111,8 @@
     });
     return s;
   };
-  const badId = (v) => /\d{4,}|@|\+\d/.test(v || '');
+  // ids com telefone, jid ou id de mensagem (hex longo) viram "fake"
+  const badId = (v) => /\d{4,}|@|\+\d|[0-9A-Fa-f]{12,}/.test(v || '');
   const makeLabelCheck = () => {
     const names = sensitive();
     return (el, label) => {
@@ -164,7 +170,17 @@
     voiceCall: ['#main header [data-icon*="call" i]', '#main header [aria-label*="Ligação" i]', '#main header [aria-label*="voz" i]'],
     menus: ['[role="application"] ul', '[role="menu"]'], dialog: ['[role="dialog"]'], tooltip: ['[role="tooltip"]'],
     introScreen: ['[data-testid="intro-md-beta-logo-dark"]', '[data-asset-intro-image-light]', '[data-asset-intro-image-dark]'],
-    wallpaper: ['[data-asset-chat-background-dark]', '[data-asset-chat-background-light]', '#main [style*="background-image"]']
+    wallpaper: ['[data-asset-chat-background-dark]', '[data-asset-chat-background-light]', '#main [style*="background-image"]'],
+    // seletores confirmados na inspeção de 25/11/2026 (docs/selectors.md)
+    tidChatList: ['[data-testid="chat-list"]'], tidListItem: ['[data-testid^="list-item-"]'],
+    tidCellTitle: ['[data-testid="cell-frame-title"]'], tidUnread: ['[data-testid="icon-unread-count"]'],
+    tidSearch: ['[data-testid="chat-list-search-container"]'], tidFilters: ['[data-testid="chat_list_filters_row"]'],
+    tidNavbar: ['[data-testid="navbar-primary-section"]'], tidHeader: ['[data-testid="conversation-header"]'],
+    tidHeaderTitle: ['[data-testid="conversation-info-header-chat-title"]'], tidPanel: ['[data-testid="conversation-panel-messages"]'],
+    tidWallpaper: ['[data-testid^="conversation-background"]'], tidMsg: ['[data-testid="msg-container"]'],
+    tidMsgMeta: ['[data-testid="msg-meta"]'], tidQuoted: ['[data-testid="quoted-message"]'], tidAuthor: ['[data-testid="author"]'],
+    tidReaction: ['[data-testid="reaction-bubble"]'], tidCompose: ['[data-testid="compose-box"]'],
+    tidComposeInput: ['[data-testid="conversation-compose-box-input"]'], tidDrawerRight: ['[data-testid="drawer-right"]']
   };
   const probe = () => {
     const out = {};
@@ -279,7 +295,7 @@
       catch (e) { blocked.push(safeUrl(sh.href)); }
     }
     const html = '<!doctype html>\n<html class="' + document.documentElement.className + '" lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<title>WhatsApp (fixture sanitizada)</title>\n' +
-      '<!-- Gerado por scripts/recon/wa-recon.js em ' + new Date().toISOString() + '. Todo texto, imagem e id foi substituído. -->\n' +
+      '<!-- Gerado por scripts/recon/ext/wa-recon.js em ' + new Date().toISOString() + '. Todo texto, imagem e id foi substituído. -->\n' +
       (blocked.length ? '<!-- Folhas de estilo não capturadas (CORS): ' + blocked.join(' ') + ' -->\n' : '') +
       '<style>\n' + css + '</style>\n</head>\n<body class="' + document.body.className + '">\n' + clone.outerHTML + '\n</body>\n</html>\n';
     return { html, cssBytes: css.length, blockedSheets: blocked };
@@ -291,12 +307,50 @@
     a.download = name; document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
   };
-  R.save = () => {
-    const snap = R.snapshot();
-    const report = { meta: { startedAt: R.startedAt, savedAt: new Date().toISOString(), version: R.version, notificationPermission: R.notificationPermission, preloadedAudio: R.preloadedAudio, snapshotCssBytes: snap.cssBytes, snapshotBlockedSheets: snap.blockedSheets }, sound: R.sound, structure: R.structure() };
-    download('wa-recon.json', JSON.stringify(report, null, 2), 'application/json');
-    setTimeout(() => download('wa-snapshot.html', snap.html, 'text/html'), 800);
-    console.log('[holoRecon] salvando wa-recon.json e wa-snapshot.html em Downloads. Eventos de som registrados:', R.sound.filter((e) => e.kind !== 'title').length);
+  R.report = () => {
+    let snap = { cssBytes: 0, blockedSheets: [], html: '' };
+    try { snap = R.snapshot(); } catch (e) { console.error('[holoRecon] falha no snapshot:', e); }
+    let structure = null;
+    try { structure = R.structure(); } catch (e) { console.error('[holoRecon] falha na estrutura:', e); structure = { error: String(e) }; }
+    R.last = { snap, report: { meta: { startedAt: R.startedAt, savedAt: new Date().toISOString(), version: R.version, notificationPermission: R.notificationPermission, preloadedAudio: R.preloadedAudio, snapshotCssBytes: snap.cssBytes, snapshotBlockedSheets: snap.blockedSheets }, sound: R.sound, structure } };
+    return R.last;
   };
+  R.save = () => {
+    const { snap, report } = R.report();
+    try {
+      download('wa-recon.json', JSON.stringify(report, null, 2), 'application/json');
+      if (snap.html) setTimeout(() => download('wa-snapshot.html', snap.html, 'text/html'), 800);
+    } catch (e) { console.error('[holoRecon] o download falhou:', e); }
+    console.log('[holoRecon] pedi ao Firefox para salvar wa-recon.json (' + Math.round(JSON.stringify(report).length / 1024) + ' KB) e wa-snapshot.html (' + Math.round(snap.html.length / 1024) + ' KB). Eventos de som registrados:', R.sound.filter((e) => e.kind !== 'title').length);
+    console.log('[holoRecon] se nada aparecer em Downloads, rode no console:  copy(JSON.stringify(holoRecon.last.report))  e cole o resultado num arquivo.');
+  };
+  /* ---------- modo automático (quando carregado pela extensão de inspeção) ---------- */
+  if (window.__holoReconAuto) {
+    let sent = false;
+    const finish = (reason) => {
+      if (sent) return; sent = true;
+      window.postMessage({ holoRecon: 'status', stage: 'saving' }, '*');
+      setTimeout(() => {
+        const { snap, report } = R.report();
+        report.meta.finishedBecause = reason;
+        window.postMessage({ holoRecon: 'done', json: JSON.stringify(report, null, 2), html: snap.html }, '*');
+      }, 1500);
+    };
+    window.addEventListener('message', (e) => {
+      if (e.source === window && e.data && e.data.holoReconCmd === 'save') finish('botão "salvar agora"');
+    });
+    setInterval(() => {
+      if (sent || !document.body) return;
+      const logged = !!document.querySelector('#side, #pane-side');
+      // .message-in/.message-out sumiram em 2026; os ícones de "rabinho" ainda dizem a direção
+      const nIn = document.querySelectorAll('.message-in, [data-testid="tail-in"]').length;
+      const nOut = document.querySelectorAll('.message-out, [data-testid="tail-out"]').length;
+      const sound = R.sound.filter((ev) => ev.kind !== 'title').length;
+      const chat = !!document.querySelector('#main') && nIn > 0 && nOut > 0;
+      const stage = !logged ? 'login' : !sound ? 'sound' : !chat ? 'chat' : 'done';
+      window.postMessage({ holoRecon: 'status', stage, sound, nIn, nOut, chat }, '*');
+      if (stage === 'done') finish('som capturado e conversa aberta');
+    }, 2000);
+  }
   console.log('[holoRecon] pronto. Receba uma mensagem com outra conversa aberta; depois abra uma conversa e rode holoRecon.save()');
 })();

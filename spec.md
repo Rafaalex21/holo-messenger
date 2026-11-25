@@ -5,7 +5,7 @@
 | Campo | Valor |
 |---|---|
 | Codinome | `holo-messenger` |
-| Plataforma | Firefox 128+ (desktop), Manifest V3 |
+| Plataforma | Firefox 140+ (desktop), Manifest V3 (140 é o mínimo para `data_collection_permissions`) |
 | Escopo de sites | Apenas `https://web.whatsapp.com/*` |
 | Uso | Pessoal (instalação própria; sem publicação pública na AMO) |
 | Referências visuais | `docs/ref/ref-contacts-panam.png` e `docs/ref/ref-messages-river.png` — capturas do jogo, guardadas só localmente (fora do repositório público, ver `.gitignore`) |
@@ -194,13 +194,13 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 ```json
 {
   "manifest_version": 3,
-  "name": "Holo-Messenger — tema Cyberpunk para WhatsApp Web",
+  "name": "Holo-Messenger: tema para WhatsApp Web",
   "version": "0.1.0",
   "description": "Tema estilo Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web.",
   "browser_specific_settings": {
     "gecko": {
       "id": "holo-messenger@local",
-      "strict_min_version": "128.0",
+      "strict_min_version": "140.0",
       "data_collection_permissions": { "required": ["none"] }
     }
   },
@@ -273,6 +273,8 @@ export const SEL = {
 ```
 
 (Os valores acima são o ponto de partida; a Fase 1 confirma/ajusta cada um no DOM real.)
+
+> **Atualização F1 (25/11/2026):** a inspeção mostrou que `.message-in`/`.message-out` e quase todos os `data-icon` **não existem mais**, e que o `data-id` não indica mais a direção. A base passa a ser `data-testid` (`msg-container`, `conversation-header`, `cell-frame-title`, `compose-box`…), o `aria-label` e as variáveis CSS do WhatsApp (`--incoming-background`, `--outgoing-background`, `--app-background`…). A direção do balão é detectada pela cor calculada. O mapa completo está em [docs/selectors.md](docs/selectors.md).
 
 ---
 
@@ -359,6 +361,8 @@ Descobrir **como** o WA Web toca o som hoje. Passos no DevTools do Firefox com o
    Se não aparecer nada, repetir para `AudioBufferSourceNode.prototype.start` (Web Audio).
 3. Verificar se as notificações do sistema (`Notification`) tocam som do Windows por cima.
 4. Registrar o resultado em `docs/sound-investigation.md`.
+
+> **Resultado da F1 (25/11/2026):** o WhatsApp usa `new Audio("https://static.whatsapp.net/rsrc.php/yW/r/BS_BUUXbKq5.mp3")`, fora do DOM, e chama `.play()` a cada notificação por uma função `playSound`. Não usa Web Audio. O plano A vale como está. Detalhes e regra de detecção em [docs/sound-investigation.md](docs/sound-investigation.md).
 
 ### 8.2 Estratégia (em camadas)
 

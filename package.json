@@ -10,7 +10,8 @@
     "lint": "web-ext lint",
     "build": "web-ext build --overwrite-dest",
     "test": "playwright test",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks",
+    "recon": "node scripts/recon/run.mjs"
   },
   "webExt": {
     "sourceDir": ".",

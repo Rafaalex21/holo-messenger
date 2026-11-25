@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Holo-Recon (inspeção do WhatsApp Web)",
+  "version": "0.1.0",
+  "description": "Ferramenta de desenvolvimento do Holo-Messenger: mapeia a estrutura do WhatsApp Web e o som de notificação, sem guardar conteúdo das conversas.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "holo-recon@local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "permissions": ["downloads"],
+  "host_permissions": ["https://web.whatsapp.com/*"],
+  "background": { "scripts": ["background.js"] },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["auto.js", "wa-recon.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
