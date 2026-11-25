@@ -47,6 +47,19 @@ http.createServer((req, res) => {
   }
   const ext = path.extname(file);
   let body = fs.readFileSync(file);
+  if (ext === '.html' && url.searchParams.has('stub')) {
+    // /src/popup/popup.html?stub=1 → storage em memória (get/set/onChanged) para ver o popup fora do Firefox
+    body = body.toString('utf8').replace('<script', `<script>
+const holoStore = {}, holoListeners = [];
+window.browser = { storage: {
+  local: {
+    get: async (k) => (k in holoStore ? { [k]: holoStore[k] } : {}),
+    set: async (o) => { const ch = {}; for (const k in o) { ch[k] = { oldValue: holoStore[k], newValue: o[k] }; holoStore[k] = o[k]; } holoListeners.forEach((fn) => fn(ch, 'local')); }
+  },
+  onChanged: { addListener: (fn) => holoListeners.push(fn) } } };
+</script>
+<script`);
+  }
   if (ext === '.html' && url.searchParams.has('holo')) {
     const palette = url.searchParams.get('palette') === 'teal' ? 'teal' : 'yellow';
     const buttons = url.searchParams.get('buttons') === 'playstation' ? 'playstation' : 'xbox';

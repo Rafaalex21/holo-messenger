@@ -68,16 +68,21 @@
   display: none !important;
 }
 
-/* Mesma geometria do .holo-cut-* (_utils.css), mas a moldura fica num ::after
- * POR CIMA do conteúdo: o balão tem filhos absolutos (botões de mídia com
- * z-index até 100, a setinha do menu que aparece no hover) que cobriam a
- * borda de cima. O clip-path já cria um contexto de empilhamento, então o
- * z-index 101 do ::after fica preso dentro do balão.
+/* Moldura chanfrada dos balões, toda POR CIMA do conteúdo:
+ *   ::after  → borda reta de 1 px nos quatro lados (o canto some no clip-path);
+ *   ::before → a diagonal: uma barra de 1 px girada 45°. Girada, ela ganha
+ *              antisserrilhado de verdade; o gradiente de antes virava uma
+ *              escadinha que parecia sujeira na linha.
+ * O balão tem filhos absolutos (botões de mídia com z-index até 100, a
+ * setinha do menu no hover) que cobriam a borda; o clip-path já cria um
+ * contexto de empilhamento, então o z-index 101 fica preso dentro do balão.
  * O polígono passa 2 px para fora nos lados retos: com rolagem em posição
- * fracionária, um recorte exatamente na borda comia a linha de 1 px. */
+ * fracionária, um recorte exatamente na borda comia a linha de 1 px.
+ * Geometria da diagonal: o centro da barra fica no meio do corte, recuado
+ * meia espessura para dentro (senão o clip-path come metade dela). */
 :root[data-holo] [data-holo-bubble] {
   --holo-cut: 9px;
-  --holo-diag: transparent 50%, var(--holo-cut-line) 50% calc(50% + var(--holo-border) + .2px), transparent calc(50% + var(--holo-border) + .2px);
+  --holo-diag-w: 1.25px;
   position: relative;
   border: 0 !important;
   border-radius: 0 !important;
@@ -85,29 +90,43 @@
   background: var(--holo-cut-bg) !important;
 }
 
+:root[data-holo] [data-holo-bubble]::before,
 :root[data-holo] [data-holo-bubble]::after {
   content: "";
   position: absolute;
-  inset: 0;
   z-index: 101;
   pointer-events: none;
+}
+
+:root[data-holo] [data-holo-bubble]::after {
+  inset: 0;
   border: var(--holo-border) solid var(--holo-cut-line);
+}
+
+:root[data-holo] [data-holo-bubble]::before {
+  /* comprimento da diagonal (cut·√2) + 1 px para as pontas encostarem nas bordas */
+  width: calc(var(--holo-cut) * 1.4142 + 1px);
+  height: var(--holo-diag-w);
+  top: calc(var(--holo-cut) / 2 - var(--holo-diag-w) / 2 + var(--holo-diag-w) * .3536);
+  background: var(--holo-cut-line);
 }
 
 :root[data-holo] [data-holo-bubble="in"] {
   clip-path: polygon(calc(var(--holo-cut) + 2px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 2px));
 }
 
-:root[data-holo] [data-holo-bubble="in"]::after {
-  background: linear-gradient(to bottom right, var(--holo-diag)) top left / var(--holo-cut) var(--holo-cut) no-repeat border-box;
+:root[data-holo] [data-holo-bubble="in"]::before {
+  left: calc(var(--holo-cut) / 2 - (var(--holo-cut) * 1.4142 + 1px) / 2 + var(--holo-diag-w) * .3536);
+  transform: rotate(-45deg);
 }
 
 :root[data-holo] [data-holo-bubble="out"] {
   clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 2px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 2px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
 }
 
-:root[data-holo] [data-holo-bubble="out"]::after {
-  background: linear-gradient(to bottom left, var(--holo-diag)) top right / var(--holo-cut) var(--holo-cut) no-repeat border-box;
+:root[data-holo] [data-holo-bubble="out"]::before {
+  right: calc(var(--holo-cut) / 2 - (var(--holo-cut) * 1.4142 + 1px) / 2 + var(--holo-diag-w) * .3536);
+  transform: rotate(45deg);
 }
 
 /* mídia (foto, vídeo, cartão de link) sem cantos arredondados próprios */
@@ -151,6 +170,19 @@
 
 :root[data-holo] [data-testid="msg-meta"] * {
   font-family: inherit !important;
+}
+
+/* O WhatsApp reserva o lugar da hora no fim do texto com uma cópia invisível
+   dela (o <span> logo depois do texto). Com a hora em fonte mono ela fica mais
+   larga que a reserva e o texto passava por cima: a cópia ganha a mesma fonte
+   e um respiro. */
+:root[data-holo] [data-holo-bubble] [data-testid="selectable-text"] + span * {
+  font-family: var(--holo-font-mono) !important;
+  font-size: 12px !important;
+}
+
+:root[data-holo] [data-holo-bubble] [data-testid="selectable-text"] + span > span {
+  padding-left: 8px !important;
 }
 
 /* no balão enviado a hora tem cor própria: sobre o verde-água o cinza

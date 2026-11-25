@@ -21,6 +21,7 @@
 }
 
 :root[data-holo] #main footer div:has(> div > [data-testid="conversation-compose-box-input"]) {
+  margin-top: 8px !important; /* o WhatsApp encosta o campo na linha vermelha do rodapé */
   background: var(--holo-bg-panel) !important;
   box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
 }

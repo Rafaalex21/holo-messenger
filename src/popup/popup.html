@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Holo-Messenger</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!--
+    Popup do botão da extensão (spec §9.2). Por enquanto: liga/desliga e
+    layout dos botões do rodapé. Paleta, som e diagnóstico entram na F7.
+    Cada mudança vai para storage.local; o content script aplica ao vivo.
+  -->
+  <header class="head">
+    <span class="brand">HOLO-MESSENGER</span>
+    <span class="sub">WHATSAPP WEB</span>
+  </header>
+
+  <label class="row">
+    <span class="label">TEMA</span>
+    <input type="checkbox" id="enabled" class="switch">
+  </label>
+
+  <fieldset class="group">
+    <legend class="label">BOTÕES DO RODAPÉ</legend>
+
+    <!-- mesmos desenhos do content.js (GLYPHS): anel + letra ou forma -->
+    <label class="opt">
+      <input type="radio" name="buttonLayout" value="xbox">
+      <span class="name">MICROSOFT</span>
+      <span class="glyphs" aria-hidden="true">
+        <svg class="key call" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none"/><path d="M6 5.4 9 9.1l3-3.7M9 9.1v3.5" fill="none"/></svg>
+        <svg class="key close" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none"/><path d="M6.4 5.2h3.4a1.9 1.9 0 0 1 0 3.8H6.4zm0 3.8h3.8a1.9 1.9 0 0 1 0 3.8H6.4z" fill="none"/></svg>
+      </span>
+    </label>
+
+    <label class="opt">
+      <input type="radio" name="buttonLayout" value="playstation">
+      <span class="name">SONY</span>
+      <span class="glyphs" aria-hidden="true">
+        <svg class="key call" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none"/><path d="M9 5.3 12.5 11.4H5.5z" fill="none"/></svg>
+        <svg class="key close" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="none"/><circle cx="9" cy="9" r="3.5" fill="none"/></svg>
+      </span>
+    </label>
+  </fieldset>
+
+  <script src="../shared/config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

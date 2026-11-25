@@ -62,7 +62,8 @@
     }
   ],
   "action": {
-    "default_title": "Holo-Messenger: ligar/desligar o tema",
+    "default_title": "Holo-Messenger",
+    "default_popup": "src/popup/popup.html",
     "default_icon": "assets/icons/icon.svg"
   },
   "icons": {
