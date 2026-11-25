@@ -8,7 +8,7 @@
 | Plataforma | Firefox 128+ (desktop), Manifest V3 |
 | Escopo de sites | Apenas `https://web.whatsapp.com/*` |
 | Uso | Pessoal (instalação própria; sem publicação pública na AMO) |
-| Referências visuais | [docs/ref/ref-contacts-panam.png](docs/ref/ref-contacts-panam.png), [docs/ref/ref-messages-river.png](docs/ref/ref-messages-river.png) |
+| Referências visuais | `docs/ref/ref-contacts-panam.png` e `docs/ref/ref-messages-river.png` — capturas do jogo, guardadas só localmente (fora do repositório público, ver `.gitignore`) |
 | Painel de etapas | [Holo-Messenger Tracker](https://claude.ai/artifact/UNc7c27o4LHR6ZFWqno653) |
 
 ---
