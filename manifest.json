@@ -32,6 +32,16 @@
       "matches": [
         "https://web.whatsapp.com/*"
       ],
+      "js": [
+        "src/content/page-hook.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
       "css": [
         "src/theme/_fonts.css",
         "src/theme/_tokens.css",
@@ -46,7 +56,8 @@
       "js": [
         "src/shared/config.js",
         "src/shared/selectors.js",
-        "src/content/content.js"
+        "src/content/content.js",
+        "src/content/sound.js"
       ],
       "run_at": "document_start"
     }

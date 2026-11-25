@@ -4,6 +4,7 @@
     login: 'Escaneie o QR code com o celular (Aparelhos conectados).',
     sound: 'Deixe uma conversa aberta e peça para alguém te mandar mensagem em OUTRA conversa, para o som tocar.',
     chat: 'Som capturado. Agora abra uma conversa que tenha mensagens recebidas e enviadas.',
+    calls: '1) Ligue (voz) para alguém e deixe chamar uns 10 s sem atender; desligue. 2) Peça para alguém te ligar e deixe tocar uns 10 s; recuse. 3) Clique em "Terminei, salvar".',
     saving: 'Gerando os arquivos (sem texto, nomes nem fotos)…',
     saved: 'Salvo em Downloads/holo-recon. Esta janela fecha sozinha.',
     error: 'Não consegui salvar. Avise o Claude.'
@@ -31,7 +32,8 @@
     const d = e.data;
     if (d.holoRecon === 'status') {
       text.textContent = STEPS[d.stage] || d.stage;
-      btn.hidden = !(d.stage === 'sound' || d.stage === 'chat') || !d.chat;
+      btn.hidden = !(d.stage === 'sound' || d.stage === 'chat' || d.stage === 'calls') || !d.chat;
+      if (d.stage === 'calls') btn.textContent = 'Terminei, salvar' + (d.calls ? ' (' + d.calls + ' eventos de ligação)' : '');
     } else if (d.holoRecon === 'done' && typeof d.json === 'string') {
       done = true; btn.hidden = true;
       browser.runtime.sendMessage({ type: 'save', json: d.json, html: String(d.html || '') })

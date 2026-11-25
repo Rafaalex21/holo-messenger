@@ -44,6 +44,28 @@
     </label>
   </fieldset>
 
+  <fieldset class="group sound">
+    <legend class="label">SOM</legend>
+
+    <div class="seg" role="radiogroup" aria-label="Som">
+      <label><input type="radio" name="soundMode" value="cyberpunk"><span>CYBERPUNK</span></label>
+      <label><input type="radio" name="soundMode" value="whatsapp"><span>WHATSAPP</span></label>
+      <label><input type="radio" name="soundMode" value="silent"><span>MUDO</span></label>
+    </div>
+
+    <label class="row vol">
+      <span class="label">VOLUME</span>
+      <input type="range" id="volume" min="0" max="100" step="5">
+      <output id="volumeOut" class="mono">80</output>
+    </label>
+
+    <div class="tests">
+      <button type="button" class="test" data-kind="message">▶ MENSAGEM</button>
+      <button type="button" class="test" data-kind="call-outgoing">▶ LIGANDO</button>
+      <button type="button" class="test" data-kind="call-incoming">▶ RECEBENDO</button>
+    </div>
+  </fieldset>
+
   <script src="../shared/config.js"></script>
   <script src="popup.js"></script>
 </body>

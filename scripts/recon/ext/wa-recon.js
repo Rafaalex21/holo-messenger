@@ -16,7 +16,7 @@
  */
 (() => {
   if (window.holoRecon) { console.log('[holoRecon] já estava carregado'); return; }
-  const R = window.holoRecon = { sound: [], startedAt: new Date().toISOString(), version: 1 };
+  const R = window.holoRecon = { sound: [], startedAt: new Date().toISOString(), version: 2 };
   const t0 = performance.now();
   const log = (kind, info) => {
     R.sound.push(Object.assign({ ms: Math.round(performance.now() - t0), kind }, info));
@@ -33,11 +33,38 @@
     .map((s) => s.replace(/\?[^:\s)]*/g, '').slice(0, 180));
 
   /* ---------- ganchos de som ---------- */
+  // v2 (F6.0, ligações): cada elemento de mídia ganha um número para seguir o
+  // ciclo de vida (play → pause/ended), e o log diz se está em loop.
+  const ids = new WeakMap();
+  let nextId = 1;
+  const idOf = (el) => { if (!ids.has(el)) ids.set(el, nextId++); return ids.get(el); };
+  const media = (el) => ({ id: idOf(el), tag: el.tagName, src: safeUrl(el.currentSrc || el.src), inDom: el.isConnected, loop: el.loop, duration: Number.isFinite(el.duration) ? +el.duration.toFixed(2) : null, t: +el.currentTime.toFixed(2) });
+  const watched = new WeakSet();
   const play = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function () {
-    log('media.play', { tag: this.tagName, src: safeUrl(this.currentSrc || this.src), inDom: this.isConnected, volume: this.volume, muted: this.muted, stack: stack() });
+    log('media.play', Object.assign(media(this), { volume: this.volume, muted: this.muted, stack: stack() }));
+    if (!watched.has(this)) {
+      watched.add(this);
+      this.addEventListener('ended', () => log('media.ended', media(this)));
+    }
     return play.apply(this, arguments);
   };
+  const pause = HTMLMediaElement.prototype.pause;
+  HTMLMediaElement.prototype.pause = function () {
+    log('media.pause', Object.assign(media(this), { stack: stack() }));
+    return pause.apply(this, arguments);
+  };
+  const load = HTMLMediaElement.prototype.load;
+  HTMLMediaElement.prototype.load = function () {
+    log('media.load', media(this));
+    return load.apply(this, arguments);
+  };
+  const loopDesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'loop');
+  Object.defineProperty(HTMLMediaElement.prototype, 'loop', {
+    configurable: true, enumerable: loopDesc.enumerable,
+    get() { return loopDesc.get.call(this); },
+    set(v) { log('media.loop=', { id: idOf(this), value: !!v }); loopDesc.set.call(this, v); }
+  });
   const A = window.Audio;
   const AudioHook = function (src) { log('new Audio', { src: src ? safeUrl(src) : null, stack: stack() }); return src === undefined ? new A() : new A(src); };
   AudioHook.prototype = A.prototype;
@@ -46,20 +73,68 @@
   Object.defineProperty(HTMLMediaElement.prototype, 'src', {
     configurable: true, enumerable: srcDesc.enumerable,
     get() { return srcDesc.get.call(this); },
-    set(v) { log('media.src=', { tag: this.tagName, src: safeUrl(v) }); srcDesc.set.call(this, v); }
+    set(v) { log('media.src=', { id: idOf(this), tag: this.tagName, src: safeUrl(v) }); srcDesc.set.call(this, v); }
   });
   if (window.AudioBufferSourceNode) {
     const start = AudioBufferSourceNode.prototype.start;
     AudioBufferSourceNode.prototype.start = function () {
-      log('webaudio.start', { duration: this.buffer ? this.buffer.duration : null, stack: stack() });
+      log('webaudio.start', { duration: this.buffer ? this.buffer.duration : null, loop: this.loop, stack: stack() });
       return start.apply(this, arguments);
     };
+    const stop = AudioBufferSourceNode.prototype.stop;
+    AudioBufferSourceNode.prototype.stop = function () {
+      log('webaudio.stop', { duration: this.buffer ? this.buffer.duration : null, loop: this.loop });
+      return stop.apply(this, arguments);
+    };
+  }
+  // tom de chamada sintetizado (oscilador) — só a frequência
+  if (window.OscillatorNode) {
+    const ostart = OscillatorNode.prototype.start;
+    OscillatorNode.prototype.start = function () {
+      log('webaudio.osc', { type: this.type, hz: this.frequency ? Math.round(this.frequency.value) : null, stack: stack() });
+      return ostart.apply(this, arguments);
+    };
+  }
+  if (window.AudioContext) {
+    const AC = window.AudioContext;
+    const ACHook = function (opts) { log('webaudio.context', { stack: stack() }); return new AC(opts); };
+    ACHook.prototype = AC.prototype;
+    Object.setPrototypeOf(ACHook, AC);
+    window.AudioContext = ACHook;
+  }
+  if (window.MediaStreamAudioSourceNode && window.AudioContext) {
+    // áudio da chamada em si (stream remoto) — só registra que existiu
+    const cms = AudioContext.prototype.createMediaStreamSource;
+    if (cms) AudioContext.prototype.createMediaStreamSource = function () { log('webaudio.stream', {}); return cms.apply(this, arguments); };
   }
   if (window.BaseAudioContext) {
     const dec = BaseAudioContext.prototype.decodeAudioData;
     BaseAudioContext.prototype.decodeAudioData = function (buf) {
       log('webaudio.decode', { bytes: buf ? buf.byteLength : null, stack: stack() });
       return dec.apply(this, arguments);
+    };
+  }
+  // marcos de ligação: conexão WebRTC criada/mudando de estado e pedido de
+  // microfone/câmera. Só tipos e estados, nada de endereço, SDP ou mídia.
+  if (window.RTCPeerConnection) {
+    const PC = window.RTCPeerConnection;
+    let pcN = 0;
+    const PCHook = function (cfg) {
+      const pc = new PC(cfg);
+      const n = ++pcN;
+      log('rtc.new', { pc: n });
+      pc.addEventListener('connectionstatechange', () => log('rtc.state', { pc: n, state: pc.connectionState }));
+      return pc;
+    };
+    PCHook.prototype = PC.prototype;
+    Object.setPrototypeOf(PCHook, PC);
+    window.RTCPeerConnection = PCHook;
+  }
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    const gum = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = function (c) {
+      log('getUserMedia', { audio: !!(c && c.audio), video: !!(c && c.video) });
+      return gum(c);
     };
   }
   const f = window.fetch;
@@ -347,9 +422,11 @@
       const nOut = document.querySelectorAll('.message-out, [data-testid="tail-out"]').length;
       const sound = R.sound.filter((ev) => ev.kind !== 'title').length;
       const chat = !!document.querySelector('#main') && nIn > 0 && nOut > 0;
-      const stage = !logged ? 'login' : !sound ? 'sound' : !chat ? 'chat' : 'done';
-      window.postMessage({ holoRecon: 'status', stage, sound, nIn, nOut, chat }, '*');
-      if (stage === 'done') finish('som capturado e conversa aberta');
+      // v2: inspeção de LIGAÇÕES. Não termina sozinha: a pessoa liga, recebe
+      // uma ligação e clica em "Terminei, salvar".
+      const calls = R.sound.filter((ev) => ev.kind.startsWith('rtc.') || ev.kind === 'getUserMedia').length;
+      const stage = !logged ? 'login' : 'calls';
+      window.postMessage({ holoRecon: 'status', stage, sound, calls, nIn, nOut, chat: true }, '*');
     }, 2000);
   }
   console.log('[holoRecon] pronto. Receba uma mensagem com outra conversa aberta; depois abra uma conversa e rode holoRecon.save()');

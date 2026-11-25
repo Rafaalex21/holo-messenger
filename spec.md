@@ -132,6 +132,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 | RF-06 | Barra inferior decorativa com dicas `CALL` e `CLOSE` — opcional; se ativada, `CALL` aciona o botão de chamada de voz do WA e `CLOSE` fecha a conversa (Esc). |
 | RF-07 | Efeitos opcionais: scanlines, brilho nas bordas, animação curta de "glitch" quando chega mensagem. |
 | RF-08 | O som de notificação do WhatsApp Web é **substituído** por um som da extensão. |
+| RF-08b | Ligações: enquanto você liga para alguém (chamando, sem atender) toca `call-outgoing` em loop; enquanto alguém te liga, `call-incoming` em loop. Param junto com o toque original do WhatsApp (atendeu, recusou, desligou). |
 | RF-09 | O usuário pode enviar o próprio arquivo de som (mp3/ogg/wav, até 2 MB) na página de opções. |
 | RF-10 | Controle de volume (0–100 %) e botão "Testar som". |
 | RF-11 | Opção "silenciar som original sem tocar outro" (modo silencioso). |
@@ -376,14 +377,15 @@ Descobrir **como** o WA Web toca o som hoje. Passos no DevTools do Firefox com o
 Padrão para reconhecer o som do WA: guardar em `selectors.js` uma lista `SOUND_URL_PATTERNS` (ex.: regex sobre o nome do arquivo descoberto na investigação) — atualizável sem mexer no resto.
 
 ### 8.3 Reprodução
-- O som toca no **background** (`new Audio(url)`), não na página — assim a CSP do WhatsApp (`media-src`) não bloqueia.
-- Som padrão incluso: **original**, sintetizado para o projeto (blip curto "digital", ~300 ms), em `assets/sounds/default-blip.ogg`. Gerado com Web Audio/Audacity — sem material de terceiros.
+- O som toca no **content script com Web Audio**: os bytes do arquivo (pedidos ao background) viram `AudioBuffer` via `decodeAudioData`. Nenhum elemento de mídia carrega URL na página, então a CSP do WhatsApp (`media-src`) não entra; e `AudioBufferSourceNode.loop` dá loop **sem emenda** para os toques de ligação (o `<audio loop>` com MP3 deixa um silêncio a cada volta). *(Revisado na F6: o plano antigo tocava no background, mas o event page do MV3 pode ser descarregado no meio de um toque longo.)*
+- Sons inclusos (decisão de 25/11/2026, ver §8.4): `assets/sounds/message.mp3`, `call-outgoing.mp3`, `call-incoming.mp3`.
+- Ligações: o `page-hook.js` espelha o ciclo de vida do toque do WhatsApp (`play` → começa o nosso em loop; `pause`/`ended`/troca de `src` → para). Os padrões de URL dos toques saem da inspeção de ligações (F6.0).
 - Som do usuário: enviado na página de opções → validado (tipo `audio/*`, ≤ 2 MB, duração ≤ 5 s) → salvo em `storage.local` como `ArrayBuffer`/data URL → o background cria `Blob` + `URL.createObjectURL` e reaproveita.
 - **Antispam:** no máximo 1 som a cada 1,5 s (rajadas de mensagens em grupo).
 - Volume aplicado via `audio.volume`.
 
 ### 8.4 Sobre o som do jogo
-O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. A extensão **não inclui** esse arquivo. O usuário pode carregar um arquivo de áudio que já tenha, para uso pessoal, pelo campo de upload. Se algum dia o projeto for publicado, só o som original padrão vai junto (ver §15).
+O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. **Decisão do dono do projeto (25/11/2026):** os três sons vão junto com a extensão e no repositório, para quem baixar já ter tudo pronto. Riscos aceitos: pedido de remoção (DMCA) do repositório e recusa numa listagem da AMO. Mitigação: `assets/sounds/NOTICE.md` registra a origem, e a extensão não depende dos arquivos (modo "WhatsApp" e som próprio pelas opções), então retirá-los não quebra nada.
 
 ---
 
@@ -590,9 +592,9 @@ Cada etapa tem um ID usado no painel de acompanhamento. **Critério de aceite** 
 ## 15. Questões legais / propriedade intelectual
 
 - "Cyberpunk 2077", seus sons, fontes, logos e personagens são da CD PROJEKT RED; "WhatsApp" é marca da Meta.
-- Este projeto é um **tema pessoal inspirado** no estilo visual do jogo: usa cores, formas e tipografia livres (OFL), **sem** arquivos, logos ou áudio do jogo.
-- O som do jogo, se usado, é carregado pelo próprio usuário a partir de um arquivo que ele já tem, e não é distribuído com a extensão.
-- Não publicar como listagem pública na AMO com esses nomes/marcas. Se um dia publicar, renomear, retirar referências diretas e usar apenas o som original.
+- Este projeto é um **tema de fã inspirado** no estilo visual do jogo: cores, formas e tipografia livres (OFL), sem logos nem imagens do jogo.
+- **Exceção:** os três sons em `assets/sounds/` são áudio do jogo, incluídos por decisão do dono do projeto (§8.4), sem fins comerciais e fora da licença do repositório.
+- Não publicar como listagem pública na AMO com esses nomes/marcas. Se um dia publicar lá, renomear, retirar referências diretas e trocar os sons por originais.
 
 ---
 

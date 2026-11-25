@@ -14,30 +14,35 @@
     footerHints: true,
     buttonLayout: 'xbox',           // 'xbox' (Y / B) | 'playstation' (△ / ○) — glifos do rodapé CALL / CLOSE
     breadcrumb: true,
-    sound: { mode: 'custom', volume: 0.8, customName: null }, // 'custom' | 'default' | 'silent' | 'whatsapp'
+    // 'cyberpunk' (sons inclusos) | 'custom' (som próprio, F7) | 'silent' (cala o original) | 'whatsapp' (original)
+    sound: { mode: 'cyberpunk', volume: 0.8, customName: null },
     soundStrategy: 'auto'            // 'auto' | 'intercept' | 'title'
   });
 
   HOLO.ENUMS = Object.freeze({
     palette: ['yellow', 'teal'],
-    buttonLayout: ['xbox', 'playstation']
+    buttonLayout: ['xbox', 'playstation'],
+    'sound.mode': ['cyberpunk', 'custom', 'silent', 'whatsapp']
   });
 
   const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
   // Junta o que está salvo com os padrões: chaves novas ganham o padrão,
   // tipos errados são descartados.
-  HOLO.mergeConfig = (stored, base = HOLO.DEFAULTS) => {
+  HOLO.mergeConfig = (stored, base = HOLO.DEFAULTS, prefix = '') => {
     const out = {};
     for (const [k, def] of Object.entries(base)) {
       const v = isObj(stored) ? stored[k] : undefined;
-      if (isObj(def)) out[k] = HOLO.mergeConfig(v, def);
+      if (isObj(def)) out[k] = HOLO.mergeConfig(v, def, prefix + k + '.');
       else out[k] = (v === undefined || (def !== null && typeof v !== typeof def)) ? def : v;
     }
     // valores fechados (enum): fora da lista volta ao padrão
-    for (const [k, allowed] of Object.entries(HOLO.ENUMS)) {
-      if (k in out && !allowed.includes(out[k])) out[k] = base[k];
+    for (const k of Object.keys(out)) {
+      const allowed = HOLO.ENUMS[prefix + k];
+      if (allowed && !allowed.includes(out[k])) out[k] = base[k];
     }
+    // volume entre 0 e 1
+    if (prefix === 'sound.' && !(out.volume >= 0 && out.volume <= 1)) out.volume = base.volume;
     return out;
   };
 

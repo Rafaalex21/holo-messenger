@@ -9,7 +9,8 @@ playwright-report/
 .env
 .env.*
 
-# material do jogo (CD PROJEKT RED): fica só na máquina, nunca no repo público
+# capturas de tela do jogo e sons "privados" (CD PROJEKT RED): só na máquina.
+# Exceção decidida em 25/11/2026: assets/sounds/{message,call-*}.mp3 vão no repo (spec §8.4).
 assets/sounds/*.private.*
 docs/ref/*.png
 docs/ref/*.jpg
