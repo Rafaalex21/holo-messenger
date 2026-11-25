@@ -5,7 +5,7 @@
 // Serve SÓ src/, assets/ e tests/fixtures/ — nunca a raiz do projeto, onde
 // ficam .wa-ff-profile/ (login do WhatsApp) e docs/recon/raw/.
 //
-// /tests/fixtures/wa-snapshot.html?holo=1[&palette=teal]
+// /tests/fixtures/wa-snapshot.html?holo=1[&palette=teal][&buttons=playstation]
 //   devolve a fixture com o CSS e os scripts da extensão (com um
 //   browser.storage de mentira) e data-holo no <html>,
 //   imitando o que o content script faz no WhatsApp de verdade.
@@ -25,15 +25,15 @@ const themeCss = manifest.content_scripts[0].css;
 const themeJs = manifest.content_scripts[0].js;
 
 // browser.storage de mentira: o content script lê a config e liga o tema
-const stub = (palette) => `<script>
+const stub = (palette, buttons) => `<script>
 window.browser = { storage: {
-  local: { get: async () => ({ 'holo:config': { enabled: true, palette: '${palette}' } }), set: async () => {} },
+  local: { get: async () => ({ 'holo:config': { enabled: true, palette: '${palette}', buttonLayout: '${buttons}' } }), set: async () => {} },
   onChanged: { addListener() {} } } };
 </script>`;
 
-function inject(html, palette) {
+function inject(html, palette, buttons) {
   const links = themeCss.map((f) => `<link rel="stylesheet" href="/${f}">`).join('\n')
-    + '\n' + stub(palette) + '\n' + themeJs.map((f) => `<script src="/${f}"></script>`).join('\n');
+    + '\n' + stub(palette, buttons) + '\n' + themeJs.map((f) => `<script src="/${f}"></script>`).join('\n');
   const attrs = ` data-holo="" data-holo-palette="${palette}" data-holo-fx="scanlines glow glitch"`;
   return html.replace(/<html([^>]*)>/i, `<html$1${attrs}>`).replace(/<\/head>/i, `${links}\n</head>`);
 }
@@ -49,7 +49,8 @@ http.createServer((req, res) => {
   let body = fs.readFileSync(file);
   if (ext === '.html' && url.searchParams.has('holo')) {
     const palette = url.searchParams.get('palette') === 'teal' ? 'teal' : 'yellow';
-    body = inject(body.toString('utf8'), palette);
+    const buttons = url.searchParams.get('buttons') === 'playstation' ? 'playstation' : 'xbox';
+    body = inject(body.toString('utf8'), palette, buttons);
   }
   res.writeHead(200, { 'content-type': types[ext] || 'application/octet-stream', 'cache-control': 'no-store' }).end(body);
 }).listen(port, '127.0.0.1', () => console.log(`fixtures em http://127.0.0.1:${port}/tests/fixtures/`));

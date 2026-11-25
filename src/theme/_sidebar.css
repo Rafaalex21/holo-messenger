@@ -93,24 +93,30 @@
   font-size: 12px !important;
 }
 
-/* conversa aberta: barra vermelha à esquerda e fundo um pouco mais claro */
+/* conversa aberta: faixa vermelha cheia com contorno, como o contato
+   selecionado na tela de mensagens do jogo */
 :root[data-holo] #pane-side [aria-selected="true"] {
-  background: var(--holo-tint-2) !important;
-  box-shadow: inset 3px 0 0 var(--holo-line) !important;
+  background: var(--holo-active) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line), 0 0 8px var(--holo-glow-red-soft) !important;
 }
 
 :root[data-holo] #pane-side [aria-selected="false"]:hover {
   background: var(--holo-tint-1) !important;
 }
 
-/* ---------- C3: badge de não lidas ---------- */
+/* ---------- C3: badge de não lidas ----------
+   No jogo é só o número em amarelo ao lado do nome, sem caixa. */
 :root[data-holo] [data-testid="icon-unread-count"] {
-  background: var(--holo-warn) !important;
-  color: #0b0d10 !important;
+  background: transparent !important;
+  color: var(--holo-warn) !important;
   border-radius: 0 !important;
-  font-family: var(--holo-font-mono) !important;
-  font-weight: 400 !important;
-  box-shadow: 0 0 6px var(--holo-glow-yellow);
+  box-shadow: none !important;
+  font-family: var(--holo-font-ui) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  min-width: 0 !important;
+  padding: 0 2px !important;
+  text-shadow: 0 0 6px var(--holo-glow-yellow);
 }
 
 /* ---------- C4: busca ---------- */

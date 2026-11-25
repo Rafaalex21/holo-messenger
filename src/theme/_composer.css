@@ -32,6 +32,8 @@
 :root[data-holo] [data-testid="conversation-compose-box-input"] {
   caret-color: var(--holo-accent);
   font-size: 15.5px !important;
+  line-height: 1.4 !important;
+  outline: none !important;
 }
 
 /* placeholder "Digite uma mensagem" (o WhatsApp desenha num elemento à parte) */
@@ -106,16 +108,21 @@
   outline-offset: 3px;
 }
 
+/* glifo do botão (SVG desenhado pelo content.js: anel + letra ou forma) */
 :root[data-holo] .holo-key {
-  display: inline-grid;
-  place-items: center;
-  width: 17px;
-  height: 17px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  font: 400 10px/1 var(--holo-font-mono);
-  letter-spacing: 0;
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linejoin: miter;
 }
 
-:root[data-holo] .holo-hint[data-holo-key="Y"] .holo-key { color: var(--holo-warn); }
-:root[data-holo] .holo-hint[data-holo-key="B"] .holo-key { color: var(--holo-danger); }
+:root[data-holo] .holo-key circle:first-child {
+  stroke-width: 1;
+}
+
+:root[data-holo] .holo-hint[data-holo-action="call"] .holo-key { color: var(--holo-warn); }
+:root[data-holo] .holo-hint[data-holo-action="close"] .holo-key { color: var(--holo-danger); }

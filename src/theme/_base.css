@@ -157,8 +157,10 @@
   color: var(--holo-accent);
 }
 
-/* foco visível pelo teclado no estilo do tema */
-:root[data-holo] #app :focus-visible {
+/* foco visível pelo teclado no estilo do tema.
+   Campos de texto ficam de fora: o contêiner deles já acende (busca, campo de
+   mensagem) e o contorno colado no texto o espremia. */
+:root[data-holo] #app :focus-visible:not(input, textarea, [contenteditable]) {
   outline: 1px solid var(--holo-accent) !important;
   outline-offset: 1px;
 }

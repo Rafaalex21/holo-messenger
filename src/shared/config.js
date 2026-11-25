@@ -12,9 +12,15 @@
     palette: 'yellow',              // 'yellow' | 'teal'
     fx: { scanlines: true, glow: true, glitch: true },
     footerHints: true,
+    buttonLayout: 'xbox',           // 'xbox' (Y / B) | 'playstation' (△ / ○) — glifos do rodapé CALL / CLOSE
     breadcrumb: true,
     sound: { mode: 'custom', volume: 0.8, customName: null }, // 'custom' | 'default' | 'silent' | 'whatsapp'
     soundStrategy: 'auto'            // 'auto' | 'intercept' | 'title'
+  });
+
+  HOLO.ENUMS = Object.freeze({
+    palette: ['yellow', 'teal'],
+    buttonLayout: ['xbox', 'playstation']
   });
 
   const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -27,6 +33,10 @@
       const v = isObj(stored) ? stored[k] : undefined;
       if (isObj(def)) out[k] = HOLO.mergeConfig(v, def);
       else out[k] = (v === undefined || (def !== null && typeof v !== typeof def)) ? def : v;
+    }
+    // valores fechados (enum): fora da lista volta ao padrão
+    for (const [k, allowed] of Object.entries(HOLO.ENUMS)) {
+      if (k in out && !allowed.includes(out[k])) out[k] = base[k];
     }
     return out;
   };

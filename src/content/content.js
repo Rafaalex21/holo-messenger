@@ -153,31 +153,58 @@
     }
   };
 
-  const buildFooter = () => {
+  // Glifos dos botões desenhados em SVG (centro geométrico exato, sem
+  // depender das métricas da fonte). Formas genéricas, sem logotipos.
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const GLYPHS = {
+    // Microsoft: letras
+    Y: [['path', { d: 'M6 5.4 9 9.1l3-3.7M9 9.1v3.5', fill: 'none' }]],
+    B: [['path', { d: 'M6.4 5.2h3.4a1.9 1.9 0 0 1 0 3.8H6.4zm0 3.8h3.8a1.9 1.9 0 0 1 0 3.8H6.4z', fill: 'none' }]],
+    // Sony: formas
+    triangle: [['path', { d: 'M9 5.3 12.5 11.4H5.5z', fill: 'none' }]],
+    circle: [['circle', { cx: 9, cy: 9, r: 3.5, fill: 'none' }]]
+  };
+  const LAYOUTS = {
+    xbox: { call: 'Y', close: 'B' },
+    playstation: { call: 'triangle', close: 'circle' }
+  };
+  const glyph = (name) => {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'holo-key');
+    svg.setAttribute('viewBox', '0 0 18 18');
+    svg.setAttribute('aria-hidden', 'true');
+    for (const [tag, attrs] of [['circle', { cx: 9, cy: 9, r: 8, fill: 'none' }], ...GLYPHS[name]]) {
+      const el = document.createElementNS(SVG_NS, tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      svg.append(el);
+    }
+    return svg;
+  };
+
+  const buildFooter = (layout) => {
+    const keys = LAYOUTS[layout] || LAYOUTS.xbox;
     const el = document.createElement('div');
     el.className = 'holo-footer';
     el.setAttribute('data-holo-injected', '');
+    el.setAttribute('data-holo-layout', layout);
     const rule = document.createElement('div');
     rule.className = 'holo-rule';
     const hints = document.createElement('div');
     hints.className = 'holo-footer-hints';
-    const hint = (key, label, aria, action) => {
+    const hint = (action, label, aria, run) => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'holo-hint';
-      b.setAttribute('data-holo-key', key);
+      b.setAttribute('data-holo-action', action);
       b.setAttribute('aria-label', aria);
       b.title = aria;
-      const k = document.createElement('span');
-      k.className = 'holo-key';
-      k.textContent = key;
       const t = document.createElement('span');
       t.textContent = label;
-      b.append(k, t);
-      b.addEventListener('click', (e) => { e.preventDefault(); action(); });
+      b.append(glyph(keys[action]), t);
+      b.addEventListener('click', (e) => { e.preventDefault(); run(); });
       return b;
     };
-    hints.append(hint('Y', 'CALL', 'Ligar (chamada de voz)', startCall), hint('B', 'CLOSE', 'Fechar conversa', closeChat));
+    hints.append(hint('call', 'CALL', 'Ligar (chamada de voz)', startCall), hint('close', 'CLOSE', 'Fechar conversa', closeChat));
     el.append(rule, hints);
     return el;
   };
@@ -186,9 +213,10 @@
     const existing = document.querySelector('.holo-footer');
     const footer = current && current.enabled && current.footerHints ? find(SEL.mainFooter) : null;
     if (!footer) { if (existing) existing.remove(); return; }
-    if (existing && existing.previousElementSibling === footer) return;
+    const layout = current.buttonLayout;
+    if (existing && existing.previousElementSibling === footer && existing.getAttribute('data-holo-layout') === layout) return;
     if (existing) existing.remove();
-    footer.after(buildFooter());
+    footer.after(buildFooter(layout));
   };
 
   // ------------------------------------------------------- agendamento

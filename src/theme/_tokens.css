@@ -45,6 +45,7 @@
   --holo-tint-1:      rgb(92 225 230 / .06);
   --holo-tint-2:      rgb(92 225 230 / .12);
   --holo-tint-3:      rgb(92 225 230 / .2);
+  --holo-active:      rgb(255 90 80 / .2);   /* conversa aberta (faixa vermelha) */
 
   /* forma */
   --holo-cut:         10px;      /* tamanho do canto chanfrado */

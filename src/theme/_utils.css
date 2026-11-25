@@ -5,18 +5,21 @@
  */
 
 /* ---------- canto chanfrado com borda contínua ----------
- * Um elemento só, sem pseudo-elementos (o WhatsApp já usa ::before/::after):
+ * Um elemento só, sem pseudo-elementos:
  *   1. borda de 1 px normal (cor --holo-cut-line);
  *   2. clip-path corta o canto, levando junto o pedaço da borda;
  *   3. uma camada de gradiente num quadrado --holo-cut × --holo-cut, no canto
  *      cortado, desenha a diagonal com a mesma cor — a borda fecha.
+ * O polígono passa 2 px PARA FORA nos lados retos (só a diagonal corta): com
+ * o elemento em posição fracionária (rolagem), um recorte exatamente na borda
+ * engolia a linha de 1 px de cima.
  * Variáveis (opcionais, com padrão via fallback para não vencer quem as define):
  *   --holo-cut (tamanho), --holo-cut-line (borda, ciano), --holo-cut-bg (fundo, painel).
- * Os balões do WhatsApp ([data-holo-bubble], marcados pelo content.js) usam
- * o mesmo recorte: recebida = canto superior esquerdo, enviada = direito.
+ * Os balões do WhatsApp usam a mesma geometria, mas com a moldura numa camada
+ * por cima do conteúdo (_conversation.css).
  * O glow (box-shadow) seria cortado pelo clip-path: use .holo-glow-clip no PAI.
  */
-:root[data-holo] :is(.holo-cut-tl, .holo-cut-tr, .holo-cut-br, .holo-cut-bl, [data-holo-bubble]) {
+:root[data-holo] :is(.holo-cut-tl, .holo-cut-tr, .holo-cut-br, .holo-cut-bl) {
   /* a diagonal começa em 50% (a linha do clip-path) e entra 1 px para dentro;
      centrada em 50% ela perderia metade no recorte */
   --holo-diag: transparent 50%, var(--holo-cut-line, var(--holo-accent)) 50% calc(50% + var(--holo-border) + .2px), transparent calc(50% + var(--holo-border) + .2px);
@@ -24,29 +27,29 @@
   border-radius: 0;
 }
 
-:root[data-holo] :is(.holo-cut-tl, [data-holo-bubble="in"]) {
-  clip-path: polygon(var(--holo-cut) 0, 100% 0, 100% 100%, 0 100%, 0 var(--holo-cut));
+:root[data-holo] .holo-cut-tl {
+  clip-path: polygon(calc(var(--holo-cut) + 2px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 2px));
   background:
     linear-gradient(to bottom right, var(--holo-diag)) top left / var(--holo-cut) var(--holo-cut) no-repeat border-box,
     var(--holo-cut-bg, var(--holo-bg-panel)) padding-box;
 }
 
-:root[data-holo] :is(.holo-cut-tr, [data-holo-bubble="out"]) {
-  clip-path: polygon(0 0, calc(100% - var(--holo-cut)) 0, 100% var(--holo-cut), 100% 100%, 0 100%);
+:root[data-holo] .holo-cut-tr {
+  clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 2px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 2px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
   background:
     linear-gradient(to bottom left, var(--holo-diag)) top right / var(--holo-cut) var(--holo-cut) no-repeat border-box,
     var(--holo-cut-bg, var(--holo-bg-panel)) padding-box;
 }
 
 :root[data-holo] .holo-cut-br {
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--holo-cut)), calc(100% - var(--holo-cut)) 100%, 0 100%);
+  clip-path: polygon(-2px -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% - var(--holo-cut) - 2px), calc(100% - var(--holo-cut) - 2px) calc(100% + 2px), -2px calc(100% + 2px));
   background:
     linear-gradient(to top left, var(--holo-diag)) bottom right / var(--holo-cut) var(--holo-cut) no-repeat border-box,
     var(--holo-cut-bg, var(--holo-bg-panel)) padding-box;
 }
 
 :root[data-holo] .holo-cut-bl {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--holo-cut) 100%, 0 calc(100% - var(--holo-cut)));
+  clip-path: polygon(-2px -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), calc(var(--holo-cut) + 2px) calc(100% + 2px), -2px calc(100% - var(--holo-cut) - 2px));
   background:
     linear-gradient(to top right, var(--holo-diag)) bottom left / var(--holo-cut) var(--holo-cut) no-repeat border-box,
     var(--holo-cut-bg, var(--holo-bg-panel)) padding-box;

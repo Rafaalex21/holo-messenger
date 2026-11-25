@@ -68,10 +68,51 @@
   display: none !important;
 }
 
+/* Mesma geometria do .holo-cut-* (_utils.css), mas a moldura fica num ::after
+ * POR CIMA do conteúdo: o balão tem filhos absolutos (botões de mídia com
+ * z-index até 100, a setinha do menu que aparece no hover) que cobriam a
+ * borda de cima. O clip-path já cria um contexto de empilhamento, então o
+ * z-index 101 do ::after fica preso dentro do balão.
+ * O polígono passa 2 px para fora nos lados retos: com rolagem em posição
+ * fracionária, um recorte exatamente na borda comia a linha de 1 px. */
 :root[data-holo] [data-holo-bubble] {
   --holo-cut: 9px;
+  --holo-diag: transparent 50%, var(--holo-cut-line) 50% calc(50% + var(--holo-border) + .2px), transparent calc(50% + var(--holo-border) + .2px);
+  position: relative;
+  border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  background: var(--holo-cut-bg) !important;
+}
+
+:root[data-holo] [data-holo-bubble]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 101;
+  pointer-events: none;
+  border: var(--holo-border) solid var(--holo-cut-line);
+}
+
+:root[data-holo] [data-holo-bubble="in"] {
+  clip-path: polygon(calc(var(--holo-cut) + 2px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 2px));
+}
+
+:root[data-holo] [data-holo-bubble="in"]::after {
+  background: linear-gradient(to bottom right, var(--holo-diag)) top left / var(--holo-cut) var(--holo-cut) no-repeat border-box;
+}
+
+:root[data-holo] [data-holo-bubble="out"] {
+  clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 2px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 2px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
+}
+
+:root[data-holo] [data-holo-bubble="out"]::after {
+  background: linear-gradient(to bottom left, var(--holo-diag)) top right / var(--holo-cut) var(--holo-cut) no-repeat border-box;
+}
+
+/* mídia (foto, vídeo, cartão de link) sem cantos arredondados próprios */
+:root[data-holo] [data-holo-bubble] :is(img, video, canvas) {
+  border-radius: 0 !important;
 }
 
 :root[data-holo] [data-holo-bubble="in"] {

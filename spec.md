@@ -397,6 +397,7 @@ O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. A extensão **não 
   palette: 'yellow',        // 'yellow' | 'teal'
   fx: { scanlines: true, glow: true, glitch: true },
   footerHints: true,        // rodapé CALL / CLOSE
+  buttonLayout: 'xbox',     // glifos do rodapé: 'xbox' (Y / B) | 'playstation' (△ / ○)
   breadcrumb: true,
   sound: {
     mode: 'custom',         // 'custom' | 'default' | 'silent' | 'whatsapp' (não mexe)
@@ -411,6 +412,7 @@ O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. A extensão **não 
 ### 9.2 Popup (≈ 280 px)
 - Interruptor **TEMA ON/OFF**.
 - Paleta: dois botões.
+- Botões do rodapé: **Microsoft (Y / B)** ou **Sony (△ / ○)**.
 - Som: modo + volume + **Testar**.
 - Linha de status do diagnóstico: `● 9/9 seletores OK` ou `▲ 2 quebrados — ver opções`.
 - O próprio popup com o visual do tema.

@@ -45,8 +45,10 @@ const PAIRS = [
   ['metadado / painel', 'text-dim', 'bg-panel'],
   ['metadado / menus', 'text-dim', 'bg-elev'],
   ['ciano / fundo (nomes, links)', 'accent', 'bg'],
-  ['ciano / conversa ativa', 'accent', 'tint-2', 'bg'],
-  ['texto / conversa ativa', 'text', 'tint-2', 'bg'],
+  ['ciano / conversa ativa', 'accent', 'active', 'bg'],
+  ['texto / conversa ativa', 'text', 'active', 'bg'],
+  ['metadado / conversa ativa', 'text-dim', 'active', 'bg'],
+  ['não lidas: amarelo / conversa ativa', 'warn', 'active', 'bg'],
   ['recebida: texto / balão', 'in-text', 'in-bg'],
   ['recebida: hora / balão', 'text-dim', 'in-bg'],
   ['recebida: link / balão', 'accent', 'in-bg'],
@@ -55,7 +57,7 @@ const PAIRS = [
   ['enviada: link / balão', 'accent', 'out-bg'],
   ['amarelo / fundo (CALL, enviar)', 'warn', 'bg'],
   ['vermelho / fundo (CLOSE)', 'danger', 'bg'],
-  ['badge: preto / amarelo', '#0b0d10', 'warn'],
+  ['não lidas: amarelo / fundo', 'warn', 'bg'],
   ['aviso do sistema / fundo', '#b9a43a', 'bg']
 ];
 
