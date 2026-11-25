@@ -51,7 +51,13 @@ const playHere = async (kind, action) => {
   a.volume = cfg.sound.volume;
   a.loop = LOOPS.has(kind);
   if (a.loop) bgAudio.set(kind, a);
-  a.play().catch(() => bgAudio.delete(kind));
+  try {
+    await a.play();
+    HOLO.soundLog(`${kind}: reserva tocou`);
+  } catch (e) {
+    bgAudio.delete(kind);
+    HOLO.soundLog(`${kind}: reserva bloqueada (${e && (e.name || e.message)})`);
+  }
 };
 
 browser.runtime.onMessage.addListener((msg) => {

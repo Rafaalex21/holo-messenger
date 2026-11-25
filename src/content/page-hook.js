@@ -47,10 +47,17 @@
     emit(kind, 'stop');
   };
 
+  // diagnóstico: som do WhatsApp que tocou sem ser reconhecido (só o nome do arquivo)
+  const unknown = (el) => {
+    if (!(el instanceof HTMLAudioElement)) return;
+    const url = el.currentSrc || el.src || '';
+    if (WA_SOUND.test(url)) window.dispatchEvent(new CustomEvent('holo:sound-seen', { detail: url.split('/').pop() + (el.loop ? ' (loop)' : '') }));
+  };
+
   const play = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function () {
     const s = root.hasAttribute('data-holo-sound') ? classify(this) : null;
-    if (!s) return play.apply(this, arguments);
+    if (!s) { unknown(this); return play.apply(this, arguments); }
     if (s.loop) {
       if (active.has(this)) return Promise.resolve();
       active.set(this, s.kind);

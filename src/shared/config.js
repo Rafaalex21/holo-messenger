@@ -51,6 +51,22 @@
     return HOLO.mergeConfig(got[HOLO.CONFIG_KEY]);
   };
 
+  // Diagnóstico do som: últimos eventos (sem conteúdo de conversa), lidos no popup.
+  HOLO.SOUND_LOG_KEY = 'holo:sound-log';
+  let logChain = Promise.resolve(); // em fila: ler → acrescentar → gravar, sem um apagar o outro
+  HOLO.soundLog = (what) => {
+    const entry = { t: Date.now(), what: String(what).slice(0, 160) };
+    logChain = logChain.then(async () => {
+      try {
+        const got = await browser.storage.local.get(HOLO.SOUND_LOG_KEY);
+        const list = Array.isArray(got[HOLO.SOUND_LOG_KEY]) ? got[HOLO.SOUND_LOG_KEY] : [];
+        list.push(entry);
+        await browser.storage.local.set({ [HOLO.SOUND_LOG_KEY]: list.slice(-12) });
+      } catch (e) { /* diagnóstico nunca derruba o som */ }
+    });
+    return logChain;
+  };
+
   HOLO.saveConfig = async (patch) => {
     const current = await HOLO.loadConfig();
     const next = HOLO.mergeConfig({ ...current, ...patch });
