@@ -1,0 +1,164 @@
+/*
+ * Base global (F3.4): fundo, texto, scrollbars, seleção e links.
+ *
+ * Estratégia (docs/selectors.md §4): o WhatsApp pinta quase tudo com
+ * variáveis CSS. As semânticas "WDS" ficam no <html> (classe de tema +
+ * @media prefers-color-scheme) e as legadas em body.dark / body.light.
+ * Redeclaramos as duas famílias em :root e no body com !important, que
+ * vence as declarações normais do WhatsApp sem guerra de especificidade.
+ * O tema é sempre escuro: body.light recebe os mesmos valores.
+ *
+ * Seletores de componentes ficam para a Fase 4 (_sidebar, _conversation…).
+ */
+
+:root[data-holo],
+:root[data-holo] body.dark,
+:root[data-holo] body.light {
+  /* --- WDS: superfícies --- */
+  --WDS-background-wash-plain: var(--holo-bg) !important;
+  --WDS-background-wash-inset: var(--holo-bg) !important;
+  --WDS-background-elevated-wash-plain: var(--holo-bg-panel) !important;
+  --WDS-background-elevated-wash-inset: var(--holo-bg-panel) !important;
+  --WDS-app-wash: var(--holo-bg) !important;
+  --WDS-surface-default: var(--holo-bg) !important;
+  --WDS-surface-emphasized: var(--holo-bg-panel) !important;
+  --WDS-surface-elevated-default: var(--holo-bg-elev) !important;
+  --WDS-surface-elevated-emphasized: var(--holo-bg-elev) !important;
+  --WDS-surface-highlight: var(--holo-tint-1) !important;
+  --WDS-surface-pressed: var(--holo-tint-2) !important;
+  --WDS-surface-inverse: var(--holo-text) !important;
+  --WDS-components-surface-nav-bar: var(--holo-bg) !important;
+  --WDS-components-active-list-row: var(--holo-tint-2) !important;
+  --WDS-components-filter-surface-selected: var(--holo-tint-2) !important;
+
+  /* --- WDS: destaque (o verde da marca vira ciano) --- */
+  --WDS-accent: var(--holo-accent) !important;
+  --WDS-accent-emphasized: var(--holo-accent) !important;
+  --WDS-accent-deemphasized: var(--holo-tint-2) !important;
+  --WDS-persistent-always-branded: var(--holo-accent) !important;
+  --WDS-persistent-activity-indicator: var(--holo-warn) !important;
+  --WDS-secondary-positive: var(--holo-accent) !important;
+  --WDS-secondary-positive-deemphasized: var(--holo-tint-2) !important;
+  --WDS-secondary-negative: var(--holo-danger) !important;
+  --WDS-secondary-warning: var(--holo-warn) !important;
+
+  /* --- WDS: conteúdo (texto e ícones) --- */
+  --WDS-content-default: var(--holo-text) !important;
+  --WDS-content-deemphasized: var(--holo-text-dim) !important;
+  --WDS-content-action-default: var(--holo-text) !important;
+  --WDS-content-action-emphasized: var(--holo-accent) !important;
+  --WDS-content-external-link: var(--holo-accent) !important;
+  --WDS-content-read: var(--holo-accent) !important;
+  --WDS-content-on-accent: var(--holo-bg) !important;
+  --WDS-content-inverse: var(--holo-bg) !important;
+  --WDS-content-disabled: #3c474b !important;
+
+  /* --- WDS: linhas --- */
+  --WDS-lines-divider: rgb(255 90 80 / .22) !important;
+  --WDS-lines-outline-default: var(--holo-line-dim) !important;
+  --WDS-lines-outline-deemphasized: rgb(255 90 80 / .22) !important;
+
+  /* --- WDS: conversa --- */
+  --WDS-systems-chat-background-wallpaper: var(--holo-bg) !important;
+  --WDS-systems-chat-foreground-wallpaper: rgb(92 225 230 / .035) !important;
+  --WDS-systems-chat-surface-composer: var(--holo-bg-panel) !important;
+  --WDS-systems-chat-surface-tray: var(--holo-bg) !important;
+  --WDS-systems-bubble-surface-incoming: var(--holo-in-bg) !important;
+  --WDS-systems-bubble-surface-outgoing: var(--holo-out-bg) !important;
+  --WDS-systems-bubble-surface-system: var(--holo-bg-panel) !important;
+  --WDS-systems-bubble-surface-e2e: var(--holo-bg-panel) !important;
+  --WDS-systems-bubble-surface-business: var(--holo-bg-panel) !important;
+  --WDS-systems-bubble-surface-overlay: var(--holo-tint-1) !important;
+  --WDS-systems-bubble-content-deemphasized: var(--holo-text-dim) !important;
+  --WDS-systems-bubble-content-e2e: var(--holo-warn) !important;
+  --WDS-systems-bubble-content-business: var(--holo-accent) !important;
+  --WDS-systems-status-seen: var(--holo-text-dim) !important;
+
+  /* --- legadas (docs/selectors.md §4) --- */
+  --app-background: var(--holo-bg) !important;
+  --app-background-deeper: var(--holo-bg) !important;
+  --navbar-background: var(--holo-bg) !important;
+  --panel-background: var(--holo-bg-panel) !important;
+  --panel-background-deep: var(--holo-bg) !important;
+  --panel-input-background: var(--holo-bg-panel) !important;
+  --picker-background: var(--holo-bg-elev) !important;
+  --empty-state-background: var(--holo-bg-panel) !important;
+  --background-default-rgb: 11, 13, 16 !important;
+  --background-default-hover-rgb: 20, 30, 36 !important;
+  --incoming-background: var(--holo-in-bg) !important;
+  --outgoing-background: var(--holo-out-bg) !important;
+  --border-bubble: transparent !important;
+  --primary: var(--holo-text) !important;
+  --primary-strong: var(--holo-text) !important;
+  --primary-stronger: var(--holo-text) !important;
+  --message-primary: var(--holo-text) !important;
+  --text-primary-strong: var(--holo-text) !important;
+  --bubble-meta: var(--holo-text-dim) !important;
+  --bubble-meta-icon: var(--holo-text-dim) !important;
+  --icon: var(--holo-text-dim) !important;
+  --icon-ack: var(--holo-accent) !important;
+  --input-placeholder: var(--holo-text-dim) !important;
+  --input-border: var(--holo-line-dim) !important;
+  --input-border-active: var(--holo-accent) !important;
+  --link-rgb: var(--holo-accent-rgb) !important;
+  --link-alt: var(--holo-accent) !important;
+  --text-action: var(--holo-accent) !important;
+  --icon-high-emphasis: var(--holo-accent) !important;
+  --button-bubble: rgb(92 225 230 / .7) !important;
+  --badge-pending: var(--holo-warn) !important;
+  --status-ring-unread: var(--holo-accent) !important;
+  --wa-accent: var(--holo-accent) !important;
+  --blue-link: var(--holo-accent) !important;
+  --secondary-button-text: var(--holo-accent) !important;
+  --text-highlight: var(--holo-warn) !important;
+  --toast-text-link: var(--holo-accent) !important;
+  --positive: var(--holo-accent) !important;
+  --event-date: var(--holo-accent) !important;
+  --splashscreen-progress-primary: var(--holo-accent) !important;
+  --qc-quantity-label-highlighted-background: var(--holo-accent) !important;
+  --ptt-green: var(--holo-accent) !important;
+  --ptt-thumb-incoming-unplayed: var(--holo-accent) !important;
+  --audio-progress-incoming: var(--holo-accent) !important;
+  --notification-biz-text: var(--holo-accent) !important;
+  --notification-non-e2e-text: var(--holo-accent) !important;
+  --message-selection-highlight: var(--holo-tint-1) !important;
+
+  color-scheme: dark;
+}
+
+/* fundo e texto do documento */
+:root[data-holo],
+:root[data-holo] body {
+  background-color: var(--holo-bg) !important;
+  color: var(--holo-text);
+}
+
+/* tipografia: Rajdhani no app inteiro; emojis caem no fallback do sistema */
+:root[data-holo] body,
+:root[data-holo] #app {
+  font-family: var(--holo-font-ui) !important;
+  font-weight: 500;
+}
+
+/* scrollbars finas, trilho invisível, polegar vermelho apagado */
+:root[data-holo] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--holo-line-dim) transparent;
+}
+
+/* seleção de texto */
+:root[data-holo] ::selection {
+  background: rgb(240 214 74 / .35);
+  color: inherit;
+}
+
+/* links em mensagens e painéis */
+:root[data-holo] #app a[href] {
+  color: var(--holo-accent);
+}
+
+/* foco visível pelo teclado no estilo do tema */
+:root[data-holo] #app :focus-visible {
+  outline: 1px solid var(--holo-accent) !important;
+  outline-offset: 1px;
+}

@@ -1,6 +1,6 @@
 # Mapa de seletores do WhatsApp Web
 
-Fonte da verdade para `src/shared/selectors.js` e para a seção `/* === SELECTORS === */` do `theme.css` (spec §5).
+Fonte da verdade para `src/shared/selectors.js` e para a seção `/* === SELECTORS === */` de cada parcial `src/theme/_*.css` (spec §5).
 
 | Campo | Valor |
 |---|---|

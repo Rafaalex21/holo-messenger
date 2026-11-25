@@ -1,0 +1,59 @@
+/*
+ * Holo-Messenger — tokens de design (spec §2.3).
+ * Regra de ouro: TODA regra fica sob :root[data-holo]. Sem o atributo, o
+ * WhatsApp fica intacto (é assim que o liga/desliga funciona).
+ *
+ * Ordem dos arquivos (manifest.json → content_scripts.css):
+ *   _fonts.css → _tokens.css → _utils.css → _base.css
+ */
+
+:root[data-holo] {
+  /* base */
+  --holo-bg:          #0b0d10;   /* fundo geral */
+  --holo-bg-panel:    #101419;   /* painéis */
+  --holo-bg-elev:     #161b22;   /* menus, modais */
+  --holo-line:        #ff5a50;   /* linhas vermelhas/coral */
+  --holo-line-dim:    #7a2a27;
+  --holo-text:        #d8f3f5;   /* texto padrão */
+  --holo-text-dim:    #7f9aa0;   /* metadados */
+
+  /* recebido */
+  --holo-in-bg:       #0a1c22;
+  --holo-in-border:   #5ce1e6;
+  --holo-in-text:     #9ff3f6;
+
+  /* enviado — paleta "yellow" (padrão) */
+  --holo-out-bg:      #15140a;
+  --holo-out-border:  #f0d64a;
+  --holo-out-text:    #f6e27a;
+
+  /* destaque */
+  --holo-accent:      #5ce1e6;   /* ciano */
+  --holo-accent-rgb:  92, 225, 230;
+  --holo-warn:        #f0d64a;   /* amarelo (badges) */
+  --holo-danger:      #ff5a50;   /* vermelho */
+  --holo-glow-color:  rgb(92 225 230 / .35);
+  --holo-glow:        0 0 6px var(--holo-glow-color);
+
+  /* superfícies translúcidas sobre o fundo (hover, seleção, ativo) */
+  --holo-tint-1:      rgb(92 225 230 / .06);
+  --holo-tint-2:      rgb(92 225 230 / .12);
+  --holo-tint-3:      rgb(92 225 230 / .2);
+
+  /* forma */
+  --holo-cut:         10px;      /* tamanho do canto chanfrado */
+  --holo-border:      1px;
+  --holo-radius:      0;         /* tudo reto */
+
+  /* tipografia (fontes empacotadas em assets/fonts, ver _fonts.css) */
+  --holo-font-ui:     "Holo Rajdhani", "Segoe UI", system-ui, sans-serif;
+  --holo-font-body:   "Holo Rajdhani", "Segoe UI", system-ui, sans-serif;
+  --holo-font-mono:   "Holo Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+
+/* paleta "teal" — baseada na captura de contatos */
+:root[data-holo][data-holo-palette="teal"] {
+  --holo-out-bg:      #12524c;
+  --holo-out-border:  #3fb8a8;
+  --holo-out-text:    #e6fffb;
+}

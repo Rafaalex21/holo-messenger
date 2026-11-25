@@ -19,9 +19,20 @@
   "content_scripts": [
     {
       "matches": ["https://web.whatsapp.com/*"],
-      "css": ["src/theme/theme.css"],
+      "css": [
+        "src/theme/_fonts.css",
+        "src/theme/_tokens.css",
+        "src/theme/_utils.css",
+        "src/theme/_base.css"
+      ],
       "js": ["src/shared/config.js", "src/content/content.js"],
       "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/fonts/*.woff2"],
+      "matches": ["https://web.whatsapp.com/*"]
     }
   ],
   "action": {

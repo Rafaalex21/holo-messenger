@@ -163,7 +163,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 │  │   page-hook.js  ── intercepta Audio/play do WA ──┐   │ │
 │  │                                                  │   │ │
 │  │ ISOLATED world (content script)                  ▼   │ │
-│  │   theme.css     (estilos, carregado no início)       │ │
+│  │   theme/_*.css  (estilos, carregados no início)      │ │
 │  │   content.js    (liga/desliga, breadcrumb, rodapé,   │ │
 │  │                  observer, diagnóstico, ponte) ──┐   │ │
 │  └──────────────────────────────────────────────────┼───┘ │
@@ -180,7 +180,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 
 | Arquivo | Mundo | Quando | Função |
 |---|---|---|---|
-| `src/theme/theme.css` | — | `document_start` | Todo o visual, aplicado só quando `<html data-holo>` existe. |
+| `src/theme/_*.css` | — | `document_start` | Todo o visual, aplicado só quando `<html data-holo>` existe. Parciais listados em ordem no manifest (`_fonts`, `_tokens`, `_utils`, `_base`, depois os de componentes). |
 | `src/content/content.js` | ISOLATED | `document_start` | Lê config, põe `data-holo`/`data-holo-palette` no `<html>`, injeta breadcrumb e rodapé, observa DOM, roda diagnóstico, recebe eventos do hook e repassa ao background. |
 | `src/content/page-hook.js` | **MAIN** | `document_start` | Sobrescreve `HTMLMediaElement.prototype.play` (e, se preciso, `AudioBufferSourceNode.start` / `Notification`) para reconhecer e silenciar o som de notificação do WA, avisando o content script via `CustomEvent`. |
 | `src/background/background.js` | — | evento | Toca o som escolhido (`new Audio(blobURL)`), volume, valores padrão. |
@@ -216,7 +216,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
     },
     {
       "matches": ["https://web.whatsapp.com/*"],
-      "css": ["src/theme/theme.css"],
+      "css": ["src/theme/_fonts.css", "src/theme/_tokens.css", "src/theme/_utils.css", "src/theme/_base.css", "…parciais da F4"],
       "js": ["src/shared/config.js", "src/shared/selectors.js", "src/content/content.js"],
       "run_at": "document_start"
     }
@@ -233,7 +233,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 Notas:
 - `world: "MAIN"` em `content_scripts` exige Firefox 128+. Fallback para versões antigas: `window.wrappedJSObject` + `exportFunction` a partir do content script isolado.
 - `data_collection_permissions: ["none"]` é exigido pela Mozilla para extensões novas enviadas à AMO (inclusive assinatura unlisted).
-- Fontes referenciadas no CSS via `moz-extension://__MSG_@@extension_id__/assets/fonts/...` — o Firefox resolve `__MSG_@@extension_id__` em CSS de content script.
+- Fontes referenciadas no CSS por URL relativa (`../../assets/fonts/…`): o Firefox resolve a partir do endereço `moz-extension://` da folha de estilo. `assets/fonts/*.woff2` fica em `web_accessible_resources` só para o WhatsApp (F3).
 
 ---
 
@@ -249,7 +249,7 @@ O WhatsApp Web usa classes **ofuscadas** que mudam a cada deploy (`x1n2onr6`, `_
 6. **Estrutura relativa** (`#main header > div:first-child`) — só como último recurso, sempre com fallback.
 
 Regras:
-- Todo seletor fica em `src/shared/selectors.js` (para JS) e numa seção marcada `/* === SELECTORS === */` no topo do `theme.css`.
+- Todo seletor fica em `src/shared/selectors.js` (para JS) e numa seção marcada `/* === SELECTORS === */` no topo de cada parcial `src/theme/_*.css`.
 - Cada seletor crítico tem **nome**, **seletor principal**, **fallbacks** e **criticidade** (crítico / cosmético).
 - O diagnóstico (§10) testa os críticos e mostra no popup quais falharam.
 - Documentar o mapa real em `docs/selectors.md` na Fase 1 (o DOM do WA muda; o mapa é a fonte da verdade).
@@ -447,8 +447,9 @@ Tema Cyberpunk 2077/
 │  ├─ shared/config.js
 │  ├─ shared/selectors.js
 │  ├─ theme/
-│  │  ├─ theme.css           # importa os parciais abaixo (ou concatenado no build)
+│  │  ├─ _fonts.css          # @font-face; ordem no manifest: fonts, tokens, utils, base, componentes
 │  │  ├─ _tokens.css
+│  │  ├─ _utils.css          # chanfro, linhas, glow
 │  │  ├─ _base.css
 │  │  ├─ _sidebar.css
 │  │  ├─ _conversation.css
@@ -471,7 +472,7 @@ Tema Cyberpunk 2077/
    └─ sound-investigation.md
 ```
 
-Observação sobre `@import`: content scripts CSS não resolvem `@import` relativo de forma confiável — o `npm run build` concatena os parciais em `theme.css` (script Node simples, sem bundler).
+Observação sobre `@import`: content scripts CSS não resolvem `@import` relativo de forma confiável. Em vez de concatenar no build, o manifest lista os parciais em ordem em `content_scripts[].css` (decidido na F3).
 
 ---
 
@@ -538,7 +539,7 @@ Cada etapa tem um ID usado no painel de acompanhamento. **Critério de aceite** 
 - **F8.3** Observer com `requestAnimationFrame` e escopo reduzido (RNF-03). *Rolagem de conversa longa sem travar (perfilador: < 4 ms por frame no script da extensão).*
 
 ### F9 — Testes
-- **F9.1** Playwright (Firefox) abrindo a fixture, injetando `theme.css` + `content.js` e comparando screenshots (claro/escuro, duas paletas). *`npx playwright test` verde.*
+- **F9.1** Playwright (Firefox) abrindo a fixture, injetando os CSS do tema (lista do manifest) + `content.js` e comparando screenshots (claro/escuro, duas paletas). *`npx playwright test` verde.*
 - **F9.2** Teste do hook de som na fixture: `new Audio(<url do WA>).play()` não toca e dispara `holo:notify`. *Teste verde.*
 - **F9.3** Checklist manual no WA real (§13.2). *Todos os itens marcados.*
 - **F9.4** `npx web-ext lint` limpo. *0 erros, 0 avisos relevantes.*
@@ -554,7 +555,7 @@ Cada etapa tem um ID usado no painel de acompanhamento. **Critério de aceite** 
 
 ### 13.1 Automatizados (Playwright)
 - **Por que fixture e não o WA real:** o WA exige login por QR code e muda o DOM sem aviso; testes contra ele seriam instáveis e envolveriam dados pessoais. A fixture é um snapshot sanitizado do DOM real (F1.4), atualizado sempre que o mapa de seletores mudar.
-- Os testes injetam `theme.css` e `content.js` (com um stub de `browser.storage`) na fixture e verificam: atributos no `<html>`, cores computadas de balões, presença do breadcrumb, screenshots de referência.
+- Os testes injetam os CSS do tema e o `content.js` (com um stub de `browser.storage`) na fixture e verificam: atributos no `<html>`, cores computadas de balões, presença do breadcrumb, screenshots de referência.
 - O hook de som é testado chamando `play()` com a URL do padrão e verificando que o evento foi disparado e o áudio não tocou.
 
 ### 13.2 Checklist manual (WA real)

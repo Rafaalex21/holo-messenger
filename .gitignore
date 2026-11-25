@@ -23,3 +23,6 @@ tests/fixtures/wa-snapshot.html
 # perfis do Firefox com o login do WhatsApp — NUNCA versionar
 .recon-profile/
 .wa-ff-profile/
+
+# configurações locais do Claude Code (podem ter permissões e caminhos da máquina)
+.claude/settings.local.json

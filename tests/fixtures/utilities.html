@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- Página de teste dos utilitários do tema (F3.3). Abrir com:
+     node scripts/serve-fixtures.mjs  →  http://127.0.0.1:5177/tests/fixtures/utilities.html?holo=1
+     (&palette=teal troca a paleta). Sem ?holo=1 nada do tema se aplica. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holo-Messenger — utilitários</title>
+<style>
+  body { margin: 0; padding: 24px; }
+  h2 { font: 600 13px/1 var(--holo-font-ui, sans-serif); letter-spacing: .12em; text-transform: uppercase; color: var(--holo-text-dim, #666); margin: 28px 0 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .box { width: 220px; padding: 12px 14px; font-size: 16px; }
+  .in  { --holo-cut-line: var(--holo-in-border);  --holo-cut-bg: var(--holo-in-bg);  color: var(--holo-in-text); }
+  .out { --holo-cut-line: var(--holo-out-border); --holo-cut-bg: var(--holo-out-bg); color: var(--holo-out-text); }
+  .big { --holo-cut: 24px; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .sw { padding: 8px; border: 1px solid var(--holo-line-dim, #999); font: 12px/1.3 var(--holo-font-mono, monospace); }
+  .sw i { display: block; height: 28px; margin-bottom: 6px; }
+  .type p { margin: 4px 0; }
+  .zoom { image-rendering: pixelated; }
+</style>
+</head>
+<body>
+  <h2>Canto chanfrado — os quatro cantos</h2>
+  <div class="row">
+    <div id="cut-tl" class="box in holo-cut-tl">TL · recebida, ciano</div>
+    <div id="cut-tr" class="box out holo-cut-tr">TR · enviada, paleta atual</div>
+    <div id="cut-br" class="box in holo-cut-br">BR · borda deve fechar no corte</div>
+    <div id="cut-bl" class="box out holo-cut-bl">BL · sem falha no canto</div>
+  </div>
+
+  <h2>Chanfro grande + glow no pai</h2>
+  <div class="row">
+    <div class="holo-glow-clip"><div id="cut-big" class="box big in holo-cut-tl">Chanfro de 24 px com drop-shadow no pai: o brilho segue o recorte.</div></div>
+    <div class="holo-glow-clip"><div class="box big out holo-cut-tr">Mensagem enviada com linhas<br>várias linhas<br>de texto.</div></div>
+  </div>
+
+  <h2>Linhas</h2>
+  <div class="box holo-line-top holo-line-bottom" style="width:460px">holo-line-top + holo-line-bottom</div>
+  <div style="height:16px"></div>
+  <div class="holo-rule" style="width:460px"></div>
+
+  <h2>Glow</h2>
+  <div class="row">
+    <div class="box holo-glow" style="border:1px solid var(--holo-accent)">.holo-glow em caixa reta</div>
+    <div class="box holo-glow-text" style="color:var(--holo-accent);font-size:22px;font-weight:700">TEXTO COM GLOW</div>
+  </div>
+
+  <h2>Tipografia</h2>
+  <div class="type">
+    <p style="font-weight:500;font-size:18px">Rajdhani 500 — Ação, coração, pão, você, órgão, à 0123456789</p>
+    <p style="font-weight:600;font-size:18px">Rajdhani 600 — MESSAGES › NOME DO CONTATO</p>
+    <p style="font-weight:700;font-size:18px">Rajdhani 700 — CALL · CLOSE</p>
+    <p style="font-family:var(--holo-font-mono);font-size:16px">Share Tech Mono — 12:49 ✓✓ 0123456789</p>
+  </div>
+
+  <h2>Tokens</h2>
+  <div class="swatches" id="swatches"></div>
+
+  <p><a href="#">um link</a> · selecione este texto para ver a cor de seleção.</p>
+
+<script>
+  const names = ['bg','bg-panel','bg-elev','line','line-dim','text','text-dim','in-bg','in-border','in-text','out-bg','out-border','out-text','accent','warn','danger'];
+  const cs = getComputedStyle(document.documentElement);
+  const box = document.getElementById('swatches');
+  for (const n of names) {
+    const el = document.createElement('div');
+    el.className = 'sw';
+    const v = cs.getPropertyValue('--holo-' + n).trim();
+    const i = document.createElement('i');
+    i.style.background = v || 'repeating-linear-gradient(45deg,#ccc 0 4px,#fff 4px 8px)';
+    el.append(i, '--holo-' + n, document.createElement('br'), v || '(sem tema)');
+    box.append(el);
+  }
+</script>
+</body>
+</html>

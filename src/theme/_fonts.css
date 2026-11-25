@@ -1,0 +1,39 @@
+/*
+ * Fontes empacotadas (spec §2.3): Rajdhani 500/600/700 e Share Tech Mono 400,
+ * subconjunto latin (cobre o português). Licença: assets/fonts/OFL.txt.
+ * Nomes com prefixo "Holo" para não colidir com fontes que a página carregue.
+ * A URL relativa é resolvida a partir deste arquivo (moz-extension://…);
+ * o manifest expõe assets/fonts/ em web_accessible_resources só para o WhatsApp.
+ */
+
+@font-face {
+  font-family: "Holo Rajdhani";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/fonts/rajdhani-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Holo Rajdhani";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../assets/fonts/rajdhani-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Holo Rajdhani";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../../assets/fonts/rajdhani-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Holo Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/share-tech-mono-latin-400-normal.woff2") format("woff2");
+}
