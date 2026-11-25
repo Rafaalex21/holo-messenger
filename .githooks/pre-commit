@@ -1,0 +1,18 @@
+#!/bin/sh
+# Barra commits com segredos (chaves, tokens, senhas) antes que entrem no histórico.
+# Ativado por: git config core.hooksPath .githooks  (o "npm install" faz isso sozinho)
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks não encontrado no PATH." >&2
+  echo "Instale com: winget install --id Gitleaks.Gitleaks -e  (e reabra o terminal)" >&2
+  exit 1
+fi
+
+gitleaks git --pre-commit --staged --redact --no-banner
+status=$?
+if [ $status -ne 0 ]; then
+  echo "" >&2
+  echo "pre-commit: o gitleaks encontrou possível segredo nos arquivos preparados." >&2
+  echo "Tire o segredo do arquivo (use variável de ambiente ou .env, que é ignorado) e tente de novo." >&2
+  exit $status
+fi

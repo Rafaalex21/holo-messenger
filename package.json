@@ -9,7 +9,8 @@
     "dev:devedition": "web-ext run --firefox=firefoxdeveloperedition --start-url https://web.whatsapp.com",
     "lint": "web-ext lint",
     "build": "web-ext build --overwrite-dest",
-    "test": "playwright test"
+    "test": "playwright test",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "webExt": {
     "sourceDir": ".",
