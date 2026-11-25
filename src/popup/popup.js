@@ -85,25 +85,7 @@
     });
   }
 
-  // diagnóstico do som (mais novo em cima)
-  const logBox = $('#soundLog');
-  const two = (n) => String(n).padStart(2, '0');
-  const renderLog = (list) => {
-    logBox.textContent = '';
-    for (const { t, what } of (Array.isArray(list) ? list : []).slice().reverse()) {
-      const d = new Date(t);
-      const li = document.createElement('li');
-      const time = document.createElement('b');
-      time.textContent = `${two(d.getHours())}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
-      li.append(time, document.createTextNode(what));
-      logBox.append(li);
-    }
-  };
-  browser.storage.local.get(HOLO.SOUND_LOG_KEY).then((got) => renderLog(got[HOLO.SOUND_LOG_KEY]), () => {});
-
   browser.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'local') return;
-    if (changes[HOLO.CONFIG_KEY]) render(HOLO.mergeConfig(changes[HOLO.CONFIG_KEY].newValue));
-    if (changes[HOLO.SOUND_LOG_KEY]) renderLog(changes[HOLO.SOUND_LOG_KEY].newValue);
+    if (area === 'local' && changes[HOLO.CONFIG_KEY]) render(HOLO.mergeConfig(changes[HOLO.CONFIG_KEY].newValue));
   });
 })();

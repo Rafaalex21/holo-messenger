@@ -53,7 +53,7 @@
   const viaBackground = (kind, action) => {
     if (action === 'play') usedBackground.add(kind);
     else if (!usedBackground.delete(kind)) return; // só manda parar o que ele tocou
-    return browser.runtime.sendMessage({ type: 'holo:sound-play', kind, action }).catch((e) => HOLO.soundLog(`${kind}: reserva falhou (${e && e.message})`));
+    return browser.runtime.sendMessage({ type: 'holo:sound-play', kind, action }).catch(() => {});
   };
 
   // No Firefox, resume() de um contexto bloqueado NÃO falha: fica pendente até
@@ -64,7 +64,7 @@
   ]);
 
   const start = async (kind) => {
-    if (!audible()) { HOLO.soundLog(`${kind}: interceptado, modo ${cfg && cfg.sound.mode} (sem som)`); return; }
+    if (!audible()) return;
     if (kind === 'message') {
       const now = Date.now();
       if (now - lastMessage < MESSAGE_GAP_MS) return;
@@ -77,7 +77,6 @@
       const c = context();
       if (c.state !== 'running') await resumeQuick(c);
       if (c.state !== 'running') {
-        HOLO.soundLog(`${kind}: página sem permissão de áudio (${c.state}) → reserva`);
         viaBackground(kind, 'play');
         return;
       }
@@ -89,9 +88,7 @@
       src.connect(gain);
       if (src.loop) playing.set(kind, src);
       src.start();
-      HOLO.soundLog(`${kind}: tocou na página`);
     } catch (e) {
-      HOLO.soundLog(`${kind}: erro na página (${e && (e.name || e.message)}) → reserva`);
       viaBackground(kind, 'play');
     }
   };
@@ -104,17 +101,12 @@
     viaBackground(kind, 'stop');
   };
 
-  window.addEventListener('holo:sound-seen', (e) => HOLO.soundLog(`WhatsApp tocou ${String(e.detail).slice(0, 60)} (não reconhecido)`));
-
   const stopAll = () => { for (const k of LOOPS) if (wanted.has(k) || playing.has(k)) stop(k); };
 
   window.addEventListener('holo:sound', (e) => {
     const [kind, action] = String(e.detail).split(':');
     if (!KINDS.has(kind)) return;
-    if (action === 'play') {
-      if (kind !== 'message' || Date.now() - lastMessage >= MESSAGE_GAP_MS) HOLO.soundLog(`${kind}: WhatsApp ia tocar → interceptado`);
-      start(kind);
-    }
+    if (action === 'play') start(kind);
     else if (action === 'stop') stop(kind);
   });
 
@@ -127,8 +119,7 @@
     if (!audible()) stopAll();
   };
 
-  HOLO.loadConfig().then(apply, () => apply(HOLO.mergeConfig(null)))
-    .then(() => HOLO.soundLog(`WhatsApp aberto, som pronto (modo ${cfg.sound.mode})`));
+  HOLO.loadConfig().then(apply, () => apply(HOLO.mergeConfig(null)));
   browser.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes[HOLO.CONFIG_KEY]) apply(HOLO.mergeConfig(changes[HOLO.CONFIG_KEY].newValue));
   });

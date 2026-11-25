@@ -8,7 +8,7 @@
 <body>
   <!--
     Popup do botão da extensão (spec §9.2): liga/desliga, paleta, efeitos,
-    layout dos botões do rodapé, som e diagnóstico. Cada mudança vai para
+    layout dos botões do rodapé e som. Cada mudança vai para
     storage.local; o content script aplica ao vivo, sem recarregar.
   -->
   <header class="head">
@@ -90,11 +90,6 @@
       <button type="button" class="test" data-kind="call-outgoing">▶ LIGANDO</button>
       <button type="button" class="test" data-kind="call-incoming">▶ RECEBENDO</button>
     </div>
-
-    <details class="diag" open>
-      <summary class="label">DIAGNÓSTICO</summary>
-      <ol id="soundLog" class="log"></ol>
-    </details>
   </fieldset>
 
   <script src="../shared/config.js"></script>

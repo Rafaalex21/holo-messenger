@@ -271,21 +271,3 @@ body.off .group { opacity: .55; }
 
 /* sem som da extensão: volume e testes apagados */
 .sound.off .vol, .sound.off .tests { opacity: .45; }
-
-/* diagnóstico do som: últimos eventos (mais novo em cima) */
-.diag { margin-top: 10px; }
-.diag summary { cursor: pointer; }
-.log {
-  margin: 6px 0 0;
-  padding: 6px 8px;
-  max-height: 120px;
-  overflow-y: auto;
-  list-style: none;
-  border: 1px solid var(--line-dim);
-  background: var(--panel);
-  font: 400 10px/1.45 "Holo Mono", monospace;
-  letter-spacing: 0;
-  color: var(--dim);
-}
-.log li b { font-weight: 400; color: var(--accent); margin-right: 6px; }
-.log:empty::before { content: "nenhum evento ainda"; }

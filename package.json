@@ -1,18 +1,19 @@
 {
   "name": "holo-messenger",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Tema estilo Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web (extensão Firefox).",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "node scripts/run-firefox.mjs .",
     "lint": "web-ext lint",
-    "build": "web-ext build --overwrite-dest",
+    "build": "web-ext build --overwrite-dest --filename holo-messenger-{version}.zip",
     "test": "playwright test",
     "prepare": "git config core.hooksPath .githooks",
     "recon": "node scripts/run-firefox.mjs scripts/recon/ext --no-reload",
     "contrast": "node scripts/check-contrast.mjs",
-    "fixtures": "node scripts/serve-fixtures.mjs"
+    "fixtures": "node scripts/serve-fixtures.mjs",
+    "package": "npm run lint && npm run build && node scripts/check-package.mjs"
   },
   "webExt": {
     "sourceDir": ".",

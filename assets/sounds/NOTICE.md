@@ -10,5 +10,5 @@ Os três são áudio do jogo **Cyberpunk 2077**, © CD PROJEKT RED. Estão aqui 
 para a extensão funcionar pronta, num projeto de fã sem fins comerciais. Eles
 **não** são cobertos pela licença deste repositório e podem ser retirados a
 pedido do detentor dos direitos. A extensão não depende deles para funcionar:
-o modo "WhatsApp" mantém o som original e a página de opções (F7) aceita um
-som próprio no lugar.
+no popup, o modo "WhatsApp" mantém os sons originais e o "Mudo" desliga
+tudo.

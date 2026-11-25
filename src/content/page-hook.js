@@ -34,7 +34,7 @@
     { kind: 'message', file: /\/BS_BUUXbKq5\.mp3$/, loop: false },
     { kind: 'call-incoming', file: /\/kAbvQpjkfMK\.ogg$/, loop: true }
   ];
-  // conhecidos e deixados como estão (não aparecem no diagnóstico)
+  // conhecidos e deixados como estão
   const PASS = /\/l-ut9G1w4eu\.ogg$/; // bipe de fim de ligação
 
   const classify = (el) => {
@@ -60,13 +60,6 @@
     loops--;
     if (kind === 'call-incoming') lastIncoming = performance.now();
     emit(kind, 'stop');
-  };
-
-  // diagnóstico: som do WhatsApp que tocou sem ser reconhecido (só o nome do arquivo)
-  const unknown = (el) => {
-    if (!(el instanceof HTMLAudioElement)) return;
-    const url = el.currentSrc || el.src || '';
-    if (WA_SOUND.test(url) && !PASS.test(url)) window.dispatchEvent(new CustomEvent('holo:sound-seen', { detail: url.split('/').pop() + (el.loop ? ' (loop)' : '') }));
   };
 
   // ---- ligação feita: troca o "tu… tu…" que vem no áudio da chamada ----
@@ -110,7 +103,6 @@
   HTMLMediaElement.prototype.play = function () {
     const s = root.hasAttribute('data-holo-sound') ? classify(this) : null;
     if (!s) {
-      unknown(this);
       maybeRing(this);
       return play.apply(this, arguments);
     }

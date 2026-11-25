@@ -1,0 +1,104 @@
+# Publicação na AMO (addons.mozilla.org)
+
+Tudo o que o formulário de envio pede, pronto para copiar. Distribuição: **no
+site (listada)**, grátis.
+
+## Antes de enviar
+
+```
+npm run package
+```
+
+Roda o `web-ext lint` (tem que dar 0 erros e 0 avisos), gera
+`web-ext-artifacts/holo-messenger-<versão>.zip` e confere o zip com
+`scripts/check-package.mjs`: só entram `manifest.json`, `src/` e `assets/`,
+nada falta e o diagnóstico de som não volta. Se algo estiver errado, ele para
+e diz o arquivo.
+
+As capturas ficam em `web-ext-artifacts/amo/` (fora do git). Saem das páginas
+de mentira dos testes, sem nenhuma conversa real.
+
+## Campos do formulário
+
+**Nome:** Holo-Messenger: tema para WhatsApp Web
+
+**Endereço (slug):** holo-messenger
+
+**Resumo** (até 250 caracteres):
+
+> Deixa o WhatsApp Web com cara de celular de Cyberpunk 2077: balões
+> chanfrados com moldura neon, scanlines, glitch nas mensagens novas e os sons
+> do jogo para mensagem e ligação. Projeto de fã, não oficial.
+
+**Descrição:**
+
+> Tema para o WhatsApp Web inspirado no app de mensagens do celular de
+> Cyberpunk 2077.
+>
+> - Balões com canto chanfrado e moldura fina; recebidos em ciano, enviados
+>   em amarelo ou verde-água.
+> - Fontes no estilo do jogo, scanlines, brilho e um glitch rápido quando
+>   chega mensagem nova (cada efeito liga e desliga no popup).
+> - Rodapé com os botões de controle: Microsoft (Y / B) ou Sony (△ / ○).
+> - Sons do jogo para mensagem recebida, ligação recebida e "chamando"
+>   quando você liga. No popup dá para voltar aos sons do WhatsApp ou deixar
+>   tudo mudo, e mudar o volume.
+> - Tudo muda na hora, sem recarregar a página.
+>
+> Privacidade: a extensão não lê suas mensagens, nomes nem números, não manda
+> nada para lugar nenhum e não tem servidor. Ela só guarda as suas escolhas
+> (paleta, efeitos, som) no próprio Firefox.
+>
+> Projeto de fã sem fins comerciais. Não é afiliado à CD PROJEKT RED nem ao
+> WhatsApp/Meta. Cyberpunk 2077 e os sons do jogo são © CD PROJEKT RED.
+
+**Categoria:** Aparência
+
+**Tags:** whatsapp, tema, cyberpunk, dark mode
+
+**Site / suporte:** https://github.com/Rafaalex21/holo-messenger (problemas em
+`/issues`). E-mail de suporte: deixar em branco.
+
+**Licença:** escolha do dono (ver "Decisões pendentes").
+
+**Política de privacidade:** não precisa. O manifest declara
+`data_collection_permissions: none`.
+
+**Capturas** (nesta ordem):
+
+1. `1-tema-amarelo.png`: a tela inteira com o tema.
+2. `2-baloes-amarelo.png`: balões com citação, lista e reação.
+3. `3-baloes-verde-agua.png`: a mesma conversa na paleta verde-água.
+4. `4-popup.png`: o popup com paleta, efeitos, botões e som.
+
+## Notas para o revisor (campo "Notes to reviewer")
+
+> No build step, no minified or remote code: the zip is the source.
+>
+> - `src/content/page-hook.js` runs in the MAIN world at `document_start` on
+>   web.whatsapp.com only. It wraps `HTMLMediaElement.prototype.play/pause`
+>   to recognise WhatsApp's own notification and ringtone files (matched by
+>   file name on static.whatsapp.net) and, when the user picked the game
+>   sounds, stops them and fires a `holo:sound` DOM event. For outgoing voice
+>   calls it mutes the call's audio element only while the "calling" screen
+>   is up without the call timer (max 70 s), so the extension's ringback can
+>   play instead. It never reads message text, names or numbers.
+> - `src/content/sound.js` plays the bundled MP3s with Web Audio; the
+>   background page is a fallback when the tab has no autoplay permission.
+> - Storage: only the user's settings in `storage.local`. No network requests
+>   besides loading the extension's own files.
+> - The three sounds in `assets/sounds/` are from Cyberpunk 2077
+>   (© CD PROJEKT RED), included in a non-commercial fan project; see
+>   `assets/sounds/NOTICE.md`. Fonts are OFL (`assets/fonts/OFL.txt`).
+
+## Decisões pendentes (do dono)
+
+- **Licença do código.** Hoje o `package.json` diz `UNLICENSED` e não há
+  arquivo LICENSE. Para a ficha, a sugestão é MIT para o código, com os sons
+  fora dela (o `NOTICE.md` já diz isso). Outra opção é "Todos os direitos
+  reservados".
+- **Id da extensão:** `holo-messenger@local`. Depois do primeiro envio não
+  muda mais: as atualizações só chegam a quem instalou se o id for o mesmo.
+- **Sons:** os três vão na versão da loja, decidido em 25/11/2026. Se a
+  Mozilla ou a CD PROJEKT RED pedirem, a saída é tirar os arquivos e deixar o
+  modo "WhatsApp" como padrão.

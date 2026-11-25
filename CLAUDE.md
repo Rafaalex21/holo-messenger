@@ -17,6 +17,7 @@ Extensão Firefox (MV3) que deixa o WhatsApp Web com cara de Cyberpunk 2077. Esp
   - relatório HTML em `playwright-report/` (`npx playwright show-report`);
   - JSON em `test-results/results.json`;
   - trace, screenshot e vídeo de cada falha em `test-results/`.
+- `npm run package` gera o zip da AMO e confere o conteúdo (`scripts/check-package.mjs`). Ficha da loja e notas para o revisor em `docs/amo-listing.md`.
 - Windows: se o Firefox do Playwright falhar com `spawn UNKNOWN` (no log do Windows: "mozglue não pôde ser localizado"), a máquina está bloqueando programas em `AppData\Local`. Instale os navegadores em outra pasta com a variável `PLAYWRIGHT_BROWSERS_PATH`.
 
 ## Repositório público: nunca versionar

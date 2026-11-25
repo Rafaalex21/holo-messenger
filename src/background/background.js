@@ -53,10 +53,8 @@ const playHere = async (kind, action) => {
   if (a.loop) bgAudio.set(kind, a);
   try {
     await a.play();
-    HOLO.soundLog(`${kind}: reserva tocou`);
   } catch (e) {
-    bgAudio.delete(kind);
-    HOLO.soundLog(`${kind}: reserva bloqueada (${e && (e.name || e.message)})`);
+    bgAudio.delete(kind); // bloqueado: fica sem som desta vez
   }
 };
 

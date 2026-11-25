@@ -136,7 +136,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 | RF-09 | O usuário pode enviar o próprio arquivo de som (mp3/ogg/wav, até 2 MB) na página de opções. |
 | RF-10 | Controle de volume (0–100 %) e botão "Testar som". |
 | RF-11 | Opção "silenciar som original sem tocar outro" (modo silencioso). |
-| RF-12 | Popup mostra o estado do auto-diagnóstico (seletores encontrados / quebrados). |
+| RF-12 | ~~Popup mostra o estado do auto-diagnóstico (seletores encontrados / quebrados).~~ Fora do produto: decisão de 25/11/2026, o popup da loja não tem diagnóstico. |
 
 ### 3.2 Não funcionais
 
@@ -186,7 +186,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
 | `src/content/page-hook.js` | **MAIN** | `document_start` | Sobrescreve `HTMLMediaElement.prototype.play` (e, se preciso, `AudioBufferSourceNode.start` / `Notification`) para reconhecer e silenciar o som de notificação do WA, avisando o content script via `CustomEvent`. |
 | `src/background/background.js` | — | evento | Toca o som escolhido (`new Audio(blobURL)`), volume, valores padrão. |
 | `src/options/*` | — | — | Página de opções. |
-| `src/popup/*` | — | — | Atalho liga/desliga, paleta, testar som, diagnóstico. |
+| `src/popup/*` | — | — | Atalho liga/desliga, paleta, efeitos, botões do rodapé, som (modo, volume, testar). |
 | `src/shared/selectors.js` | — | — | **Único** lugar com seletores do WA. |
 | `src/shared/config.js` | — | — | Valores padrão e esquema da configuração. |
 
@@ -417,7 +417,8 @@ O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. **Decisão do dono 
 - Paleta: dois botões.
 - Botões do rodapé: **Microsoft (Y / B)** ou **Sony (△ / ○)**.
 - Som: modo + volume + **Testar**.
-- Linha de status do diagnóstico: `● 9/9 seletores OK` ou `▲ 2 quebrados — ver opções`.
+- Efeitos: scanlines, brilho e glitch, cada um liga e desliga.
+- Sem diagnóstico (decisão de 25/11/2026: fica fora do produto final).
 - O próprio popup com o visual do tema.
 
 ### 9.3 Página de opções
@@ -540,7 +541,7 @@ Cada etapa tem um ID usado no painel de acompanhamento. **Critério de aceite** 
 
 ### F8 — Resiliência
 - **F8.1** `selectors.js` com fallbacks e criticidade para todos os itens usados. *Nenhum seletor fora desse arquivo / da seção do CSS.*
-- **F8.2** Diagnóstico no popup (RF-12). *Quebrar um seletor de propósito → popup avisa.*
+- **F8.2** ~~Diagnóstico no popup (RF-12).~~ Cancelada em 25/11/2026: o produto final não tem diagnóstico. `scripts/check-package.mjs` barra a volta dele no pacote.
 - **F8.3** Observer com `requestAnimationFrame` e escopo reduzido (RNF-03). *Rolagem de conversa longa sem travar (perfilador: < 4 ms por frame no script da extensão).*
 
 ### F9 — Testes
