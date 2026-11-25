@@ -11,8 +11,14 @@
  */
 
 /* F2.3 — prova de vida: borda vermelha só no WhatsApp com o tema ligado.
-   Substituída pelo tema de verdade na Fase 3. */
-:root[data-holo] #app {
-  outline: 3px solid #ff5a50;
-  outline-offset: -3px;
+   Substituída pelo tema de verdade na Fase 3.
+   Camada fixa por cima de tudo: um outline no #app fica escondido sob os
+   filhos posicionados do WhatsApp (o Firefox pinta o outline junto do elemento). */
+:root[data-holo] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  border: 3px solid #ff5a50;
+  pointer-events: none;
+  z-index: 2147483647;
 }
