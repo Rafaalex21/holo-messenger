@@ -1,0 +1,18 @@
+/*
+ * Holo-Messenger — tema do WhatsApp Web.
+ * Regra de ouro: TODA regra fica sob :root[data-holo]. Sem o atributo,
+ * o WhatsApp fica intacto (é assim que o liga/desliga funciona).
+ *
+ * === SELECTORS ===
+ * Mapa completo e justificativa: docs/selectors.md
+ *   #app, #side, #pane-side, #main
+ *   [data-testid="msg-container"], [data-testid="conversation-header"],
+ *   [data-testid="compose-box"], [data-testid="cell-frame-title"] …
+ */
+
+/* F2.3 — prova de vida: borda vermelha só no WhatsApp com o tema ligado.
+   Substituída pelo tema de verdade na Fase 3. */
+:root[data-holo] #app {
+  outline: 3px solid #ff5a50;
+  outline-offset: -3px;
+}

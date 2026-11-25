@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- balão de mensagem com canto chanfrado (ícone original do projeto) -->
+  <path d="M15 5h44v39H31L19 56V44H5V15z" fill="#0b0d10" stroke="#5ce1e6" stroke-width="3.5" stroke-linejoin="miter"/>
+  <path d="M5 15 15 5" stroke="#ff5a50" stroke-width="3.5"/>
+  <path d="M16 21h30M16 30h20" stroke="#f0d64a" stroke-width="4.5"/>
+</svg>

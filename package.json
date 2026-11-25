@@ -5,13 +5,12 @@
   "description": "Tema estilo Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web (extensão Firefox).",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "web-ext run --start-url https://web.whatsapp.com",
-    "dev:devedition": "web-ext run --firefox=firefoxdeveloperedition --start-url https://web.whatsapp.com",
+    "dev": "node scripts/run-firefox.mjs .",
     "lint": "web-ext lint",
     "build": "web-ext build --overwrite-dest",
     "test": "playwright test",
     "prepare": "git config core.hooksPath .githooks",
-    "recon": "node scripts/recon/run.mjs"
+    "recon": "node scripts/run-firefox.mjs scripts/recon/ext --no-reload"
   },
   "webExt": {
     "sourceDir": ".",
@@ -26,7 +25,8 @@
       "playwright.config.*",
       "test-results",
       "playwright-report",
-      "**/.gitkeep"
+      "**/.gitkeep",
+      "web-ext-artifacts"
     ]
   },
   "devDependencies": {

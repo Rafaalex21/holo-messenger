@@ -22,4 +22,4 @@ tests/fixtures/wa-snapshot.html
 
 # perfis do Firefox com o login do WhatsApp — NUNCA versionar
 .recon-profile/
-.recon-ff-profile/
+.wa-ff-profile/

@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Holo-Messenger: tema para WhatsApp Web",
+  "short_name": "Holo-Messenger",
+  "version": "0.1.0",
+  "description": "Tema inspirado no estilo de Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "holo-messenger@local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://web.whatsapp.com/*"],
+  "background": {
+    "scripts": ["src/shared/config.js", "src/background/background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "css": ["src/theme/theme.css"],
+      "js": ["src/shared/config.js", "src/content/content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "Holo-Messenger: ligar/desligar o tema",
+    "default_icon": "assets/icons/icon.svg"
+  },
+  "icons": {
+    "48": "assets/icons/icon.svg",
+    "96": "assets/icons/icon.svg"
+  }
+}
