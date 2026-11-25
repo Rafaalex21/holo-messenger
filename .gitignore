@@ -1,0 +1,18 @@
+node_modules/
+web-ext-artifacts/
+test-results/
+playwright-report/
+*.xpi
+*.zip
+
+# chaves da AMO (web-ext sign) e afins
+.env
+.env.*
+
+# material do jogo (CD PROJEKT RED): fica só na máquina, nunca no repo público
+assets/sounds/*.private.*
+docs/ref/*.png
+docs/ref/*.jpg
+
+# arquivos baixados pelo script de inspeção antes de serem sanitizados/revisados
+docs/recon/raw/
