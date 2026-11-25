@@ -403,13 +403,12 @@ O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. **Decisão do dono 
   buttonLayout: 'xbox',     // glifos do rodapé: 'xbox' (Y / B) | 'playstation' (△ / ○)
   breadcrumb: true,
   sound: {
-    mode: 'custom',         // 'custom' | 'default' | 'silent' | 'whatsapp' (não mexe)
-    volume: 0.8,
-    customName: null,       // nome do arquivo enviado
-    // o arquivo em si fica em 'holo:sound' (separado, para não carregar sempre)
-  },
-  soundStrategy: 'auto'     // 'auto' (A→B) | 'intercept' | 'title'
+    mode: 'cyberpunk',      // 'cyberpunk' (sons do jogo) | 'silent' | 'whatsapp' (não mexe)
+    volume: 0.8
+  }
 }
+// 25/11/2026: sem som próprio (modo 'custom') e sem estratégia por título;
+// um 'custom' salvo antes volta a 'cyberpunk'.
 ```
 
 ### 9.2 Popup (≈ 280 px)
@@ -421,8 +420,8 @@ O áudio do Cyberpunk 2077 é propriedade da CD PROJEKT RED. **Decisão do dono 
 - Sem diagnóstico (decisão de 25/11/2026: fica fora do produto final).
 - O próprio popup com o visual do tema.
 
-### 9.3 Página de opções
-Tudo do popup + upload de som (com prévia), efeitos individuais, estratégia de som, lista detalhada do diagnóstico, botão "restaurar padrões".
+### 9.3 ~~Página de opções~~
+Cancelada em 25/11/2026: o popup já tem todas as configurações.
 
 Mudanças são aplicadas **ao vivo** via `storage.onChanged` no content script (troca de atributos em `<html>`).
 
@@ -528,14 +527,15 @@ Cada etapa tem um ID usado no painel de acompanhamento. **Critério de aceite** 
 
 ### F6 — Som de notificação
 - **F6.1** `page-hook.js` no mundo MAIN interceptando o som do WA (plano A ou A'). *Som do WA não toca; evento `holo:notify` aparece no console.*
-- **F6.2** Criar o som padrão original `default-blip.ogg`. *Arquivo ≤ 30 KB, ~300 ms.*
-- **F6.3** Upload de som nas opções com validação (tipo, 2 MB, 5 s). *Arquivo inválido mostra erro; válido fica salvo após reiniciar o Firefox.*
-- **F6.4** Background toca o som com volume e antispam (1,5 s). *Teste com 5 mensagens seguidas → 1 som.*
-- **F6.5** Fallback por título (plano B) + modo `auto`. *Com o hook desativado, som ainda toca quando `(N)` sobe.*
-- **F6.6** (Opcional) `Notification` com `silent: true` (plano C). *Sem som duplicado do Windows.*
+- **F6.2** Sons do jogo em `assets/sounds/` (decisão do dono, no lugar do som original). *Mensagem, ligando e recebendo.*
+- **F6.3** Tocar com volume e antispam (1,5 s). *Teste com 5 mensagens seguidas → 1 som.*
+- **F6.4** Toques de ligação feita e recebida em loop. *Param ao atender, recusar ou desligar.*
+- **F6.5** Notificações do WhatsApp com `silent: true` nos modos Cyberpunk e Mudo. *Sem som duplicado do Windows.*
+
+Canceladas em 25/11/2026 (numeração refeita): upload de som próprio e plano B pelo título.
 
 ### F7 — Opções e popup
-- **F7.1** Página de opções completa (§9.3). *Todas as chaves de config editáveis.*
+- ~~**F7.1** Página de opções.~~ Cancelada em 25/11/2026: o popup cobre tudo.
 - **F7.2** Popup (§9.2). *Liga/desliga e testar som funcionam.*
 - **F7.3** Aplicação ao vivo via `storage.onChanged`. *Mudar paleta no popup muda a aba aberta na hora.*
 

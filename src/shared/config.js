@@ -14,15 +14,14 @@
     footerHints: true,
     buttonLayout: 'xbox',           // 'xbox' (Y / B) | 'playstation' (△ / ○) — glifos do rodapé CALL / CLOSE
     breadcrumb: true,
-    // 'cyberpunk' (sons inclusos) | 'custom' (som próprio, F7) | 'silent' (cala o original) | 'whatsapp' (original)
-    sound: { mode: 'cyberpunk', volume: 0.8, customName: null },
-    soundStrategy: 'auto'            // 'auto' | 'intercept' | 'title'
+    // 'cyberpunk' (sons do jogo) | 'silent' (cala o original) | 'whatsapp' (original)
+    sound: { mode: 'cyberpunk', volume: 0.8 }
   });
 
   HOLO.ENUMS = Object.freeze({
     palette: ['yellow', 'teal'],
     buttonLayout: ['xbox', 'playstation'],
-    'sound.mode': ['cyberpunk', 'custom', 'silent', 'whatsapp']
+    'sound.mode': ['cyberpunk', 'silent', 'whatsapp'] // um 'custom' salvo antes volta a 'cyberpunk'
   });
 
   const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

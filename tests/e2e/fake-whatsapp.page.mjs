@@ -24,6 +24,8 @@ export class FakeWhatsApp {
   press(name) { return this.page.getByRole('button', { name, exact: true }).click(); }
 
   receiveMessage() { return this.press('Chega mensagem'); }
+  receiveMessageWithNotification() { return this.press('Chega mensagem com notificação'); }
+  receiveMessageViaWorker() { return this.press('Chega mensagem pelo service worker'); }
   dial() { return this.press('Ligar'); }
   dialVideo() { return this.press('Ligar por vídeo'); }
   remoteAnswers() { return this.press('Atenderam'); }
@@ -36,4 +38,6 @@ export class FakeWhatsApp {
   hearing() { return this.page.evaluate(() => window.__probe.now()); }
   /** tudo que começou a tocar desde que a página abriu */
   played() { return this.page.evaluate(() => window.__probe.played()); }
+  /** notificações do sistema que saíram, com as opções que chegam ao Windows */
+  notifications() { return this.page.evaluate(() => window.__probe.notifications()); }
 }

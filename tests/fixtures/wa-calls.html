@@ -21,6 +21,8 @@
 
   <section aria-label="Mensagens">
     <button type="button" id="msg">Chega mensagem</button>
+    <button type="button" id="msgNotify">Chega mensagem com notificação</button>
+    <button type="button" id="msgWorker">Chega mensagem pelo service worker</button>
   </section>
 
   <section aria-label="Ligação feita">
@@ -91,6 +93,20 @@
     };
 
     document.getElementById('msg').onclick = () => playSound(FILES.message, false);
+
+    // notificação do sistema junto com o som. silent: false de propósito: o
+    // tema tem que calar mesmo quando a página pede som
+    const NOTE = { body: 'Nova mensagem', tag: 'msg-1', silent: false };
+    document.getElementById('msgNotify').onclick = () => {
+      playSound(FILES.message, false);
+      new Notification('WhatsApp', NOTE);
+    };
+    document.getElementById('msgWorker').onclick = async () => {
+      playSound(FILES.message, false);
+      const reg = await navigator.serviceWorker.register('/tests/fixtures/wa-sw.js');
+      await navigator.serviceWorker.ready;
+      await reg.showNotification('WhatsApp', NOTE);
+    };
 
     document.getElementById('dial').onclick = () => {
       show('voip_outgoing_loading_preview_wrapper');

@@ -8,8 +8,12 @@
  *   page-hook envolve play() por cima deste, só chega aqui o que ele deixou
  *   passar — ou seja, o que o WhatsApp realmente tocou.
  *
- * window.__probe.now()    → o que está soando agora (loops e áudio da chamada sem mudo)
- * window.__probe.played() → tudo que começou a tocar, em ordem
+ * - Notificações do sistema: new Notification e registration.showNotification
+ *   no nível mais baixo, com as opções que chegariam ao Windows (silent).
+ *
+ * window.__probe.now()           → o que está soando agora (loops e áudio da chamada sem mudo)
+ * window.__probe.played()        → tudo que começou a tocar, em ordem
+ * window.__probe.notifications() → notificações mostradas: { via, title, body, tag, silent }
  */
 (() => {
   // duração (s) dos arquivos em assets/sounds → nome usado nos testes
@@ -64,6 +68,18 @@
     return pause.apply(this, arguments);
   };
 
+  const shown = [];
+  const note = (via, title, o) => shown.push({ via, title, body: o && o.body, tag: o && o.tag, silent: !!(o && o.silent) });
+  const Native = window.Notification;
+  window.Notification = class Notification extends Native {
+    constructor(title, options) { note('pagina', title, options); super(title, options); }
+  };
+  const showNotification = ServiceWorkerRegistration.prototype.showNotification;
+  ServiceWorkerRegistration.prototype.showNotification = function (title, options) {
+    note('worker', title, options);
+    return showNotification.apply(this, arguments);
+  };
+
   const bgState = () => {
     const on = new Set();
     for (const entry of window.__holoBgPlays || []) {
@@ -84,6 +100,7 @@
     played() {
       const bg = (window.__holoBgPlays || []).filter((e) => e.endsWith(':play')).map((e) => BG[e.split(':')[0]]);
       return [...log, ...bg];
-    }
+    },
+    notifications() { return shown.slice(); }
   };
 })();

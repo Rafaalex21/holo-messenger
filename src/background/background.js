@@ -27,8 +27,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 });
 
 // ------------------------------------------------------------------ sons
-// Arquivos inclusos (assets/sounds/NOTICE.md). O som próprio do usuário
-// (modo 'custom', página de opções da F7) entra aqui quando existir.
+// Arquivos inclusos (assets/sounds/NOTICE.md).
 const SOUND_FILES = {
   message: 'assets/sounds/message.mp3',
   'call-outgoing': 'assets/sounds/call-outgoing.mp3',

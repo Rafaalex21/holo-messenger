@@ -18,6 +18,9 @@
  * atendem (aparece o cronômetro), desligam, ou o elemento para, o som da
  * chamada volta como estava. Ver docs/sound-investigation.md §Ligações.
  *
+ * Notificações do sistema (new Notification e registration.showNotification)
+ * saem com silent: true, para o Windows não tocar o som dele junto.
+ *
  * Só age se o <html> tiver data-holo-sound (o content script põe conforme o
  * modo escolhido). Sem o atributo, tudo passa direto: o WhatsApp toca o dele.
  * Não lê nada da conversa: só a URL do arquivo de áudio, a pilha de chamadas
@@ -127,4 +130,25 @@
     if (ring && ring.el === this) endRing();
     return pause.apply(this, arguments);
   };
+
+  // ---- notificação do sistema (F6.5): sem som, para o Windows não tocar
+  // junto com o nosso. Só nos modos que mexem no som (data-holo-sound);
+  // no modo WhatsApp a notificação sai como o WhatsApp pediu.
+  const hush = (options) => (root.hasAttribute('data-holo-sound')
+    ? { ...(options && typeof options === 'object' ? options : {}), silent: true }
+    : options);
+
+  const NativeNotification = window.Notification;
+  if (typeof NativeNotification === 'function') {
+    // subclasse: permission, requestPermission e instanceof continuam iguais
+    window.Notification = class Notification extends NativeNotification {
+      constructor(title, options) { super(title, hush(options)); }
+    };
+  }
+  if (typeof ServiceWorkerRegistration === 'function') {
+    const showNotification = ServiceWorkerRegistration.prototype.showNotification;
+    ServiceWorkerRegistration.prototype.showNotification = function (title, options) {
+      return showNotification.call(this, title, hush(options));
+    };
+  }
 })();

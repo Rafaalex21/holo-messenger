@@ -29,8 +29,7 @@
     for (const r of layouts) r.checked = r.value === c.buttonLayout;
     for (const r of palettes) r.checked = r.value === c.palette;
     for (const b of effects) b.checked = !!c.fx[b.value];
-    // 'custom' (som próprio, F7) ainda não tem arquivo: aparece como Cyberpunk
-    const mode = c.sound.mode === 'custom' ? 'cyberpunk' : c.sound.mode;
+    const mode = c.sound.mode;
     for (const r of modes) r.checked = r.value === mode;
     soundBox.classList.toggle('off', mode !== 'cyberpunk');
     if (document.activeElement !== volume) volume.value = Math.round(c.sound.volume * 100);
