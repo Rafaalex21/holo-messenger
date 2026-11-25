@@ -11,6 +11,7 @@ Extensão Firefox (MV3) que deixa o WhatsApp Web com cara de Cyberpunk 2077. Esp
 ### Como rodar
 - `npm test` roda o Playwright no Firefox (`playwright.config.mjs`). Ele mesmo sobe `scripts/serve-fixtures.mjs` na porta 5178.
 - Specs ficam em `tests/e2e/`. Os de som usam `tests/fixtures/wa-calls.html`, um WhatsApp de mentira (código nosso) que repete o que a inspeção gravou: arquivos de toque, play/pause e os `data-testid` da tela de ligação.
+- Os de tema usam `tests/fixtures/wa-chat.html`, uma conversa de mentira com balões em posição e altura fracionárias. `tests/e2e/theme/moldura.spec.mjs` mede no print se cada lado da moldura é uma linha nítida de 1 pixel.
 - `tests/e2e/audio-probe.js` anota o que chegaria ao alto-falante. `FakeWhatsApp.hearing()` devolve o que soa agora; `played()` devolve tudo que já tocou.
 - Artefatos:
   - relatório HTML em `playwright-report/` (`npx playwright show-report`);

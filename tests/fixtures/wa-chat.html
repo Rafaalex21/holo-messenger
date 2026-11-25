@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — conversa</title>
+  <!--
+    Código nosso (pode ir para o repositório). Uma conversa com a mesma
+    estrutura mínima que o tema usa no WhatsApp: #main, painel de mensagens,
+    msg-container, balão pintado com a cor do balão, citação, reação e
+    horário. As posições e alturas saem fracionárias de propósito (como no
+    WhatsApp real, com texto de 15,5 px e entrelinha 1,4), que é onde a
+    moldura de 1 px ficava "apagada". Abrir com ?holo=1 (scripts/serve-fixtures.mjs).
+  -->
+  <style>
+    body { margin: 0; font: 15.5px/1.4 system-ui, sans-serif; background: #111; }
+    #main { position: absolute; inset: 0 0 0 0; display: flex; flex-direction: column; }
+    [data-testid="conversation-panel-messages"] { flex: 1; overflow-y: auto; padding: 10.4px 0 40px; }
+    [role="row"] { display: flex; margin: 0 0 14.3px; }
+    [role="row"].in { padding-left: 63.4px; }
+    [role="row"].out { justify-content: flex-end; padding-right: 37.6px; }
+    /* como no WhatsApp: o contêiner tem folga dos lados (lugar do "rabinho") */
+    [data-testid="msg-container"] { position: relative; max-width: 61.3%; padding: 0 8px; }
+    .in .bubble { background: var(--holo-in-bg, #fff); }
+    .out .bubble { background: var(--holo-out-bg, #dcf8c6); }
+    .bubble { padding: 6.2px 7px 8.3px 9px; }
+    [data-testid="quoted-message"] > div { padding: 4.6px 8px; margin-bottom: 4px; }
+    [data-testid="msg-meta"] { float: right; margin: 6px 0 -4px 10px; font-size: 11px; }
+    ol { margin: 0; padding-left: 22px; }
+    [data-testid="addon-bubble-container"] { position: absolute; left: 10px; bottom: -19px; z-index: 200; }
+    [data-testid="reaction-bubble"] { font: inherit; padding: 0 6px; }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <div data-testid="conversation-panel-messages">
+      <div role="row" class="in">
+        <div data-testid="msg-container">
+          <div class="bubble"><span data-testid="selectable-text">lorem ipsum dolor sit amet</span><span data-testid="msg-meta">10:21</span></div>
+        </div>
+      </div>
+
+      <div role="row" class="in">
+        <div data-testid="msg-container">
+          <div class="bubble">
+            <ol><li>lorem ipsum dolor sit amet</li><li>consectetur adipiscing elit</li></ol>
+            <span data-testid="msg-meta">10:22</span>
+          </div>
+          <div data-testid="addon-bubble-container"><button type="button" data-testid="reaction-bubble">↪ 2</button></div>
+        </div>
+      </div>
+
+      <div role="row" class="out">
+        <div data-testid="msg-container">
+          <div class="bubble">
+            <div data-testid="quoted-message"><div>lorem ipsum dolor<br>sit amet consectetur</div></div>
+            <span data-testid="selectable-text">lorem ipsum dolor sit</span><span data-testid="msg-meta">10:23</span>
+          </div>
+          <div data-testid="addon-bubble-container"><button type="button" data-testid="reaction-bubble">♥ 1</button></div>
+        </div>
+      </div>
+
+      <div role="row" class="in">
+        <div data-testid="msg-container">
+          <div class="bubble">
+            <div data-testid="quoted-message"><div>lorem ipsum dolor sit amet<br>consectetur adipiscing elit sed do</div></div>
+            <span data-testid="selectable-text">lorem ipsum dolor sit am</span><span data-testid="msg-meta">10:24</span>
+          </div>
+        </div>
+      </div>
+
+      <div role="row" class="out">
+        <div data-testid="msg-container">
+          <div class="bubble"><span data-testid="selectable-text">lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor</span><span data-testid="msg-meta">10:25</span></div>
+        </div>
+      </div>
+
+      <div role="row" class="out">
+        <div data-testid="msg-container">
+          <div class="bubble"><span data-testid="selectable-text">lorem</span><span data-testid="msg-meta">10:26</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

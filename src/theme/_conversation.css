@@ -84,6 +84,12 @@
  *     a linha de cima quando o recorte ficava exatamente na borda);
  *   - a diagonal dele fica .5 px para fora da diagonal da moldura, para a
  *     borda antisserrilhada não ser cortada duas vezes.
+ * Encaixe no pixel: o Firefox arredonda a caixa das camadas para o pixel da
+ *   tela, mas desenha o clip-path na posição fracionária; com o balão em
+ *   y = 93,4 px a linha de 1 px saía em duas fileiras a meia força ("apagada")
+ *   ou sumia. O content.js mede cada balão e põe --hs-t/r/b/l (quanto mover
+ *   cada lado da moldura até o pixel inteiro) e --holo-lw (1 pixel da tela,
+ *   também em escala 125 %/150 %).
  * O balão tem filhos absolutos com z-index até 100 (botões de mídia, a
  * setinha do menu no hover); o clip-path cria contexto de empilhamento, então
  * o z-index 101 das camadas fica preso dentro do balão. */
@@ -91,9 +97,9 @@
   --holo-cut: 9px;
   --holo-diag-gap: 2px;
   /* fim do triângulo de folga: diagonal + 1 px de linha + folga, medidos na perpendicular */
-  --holo-diag-k: calc(var(--holo-cut) + (1px + var(--holo-diag-gap)) * 1.4142);
-  /* diagonal de dentro da moldura, nos dois eixos: cut + (√2 − 1)·1 px */
-  --holo-cut-in: calc(var(--holo-cut) + .4142px);
+  --holo-diag-k: calc(var(--holo-cut) + (var(--holo-lw, 1px) + var(--holo-diag-gap)) * 1.4142);
+  /* diagonal de dentro da moldura, nos dois eixos: cut + (√2 − 1)·espessura */
+  --holo-cut-in: calc(var(--holo-cut) + .4142 * var(--holo-lw, 1px));
   position: relative;
   border: 0 !important;
   border-radius: 0 !important;
@@ -105,7 +111,7 @@
 :root[data-holo] [data-holo-bubble]::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: var(--hs-t, 0px) var(--hs-r, 0px) var(--hs-b, 0px) var(--hs-l, 0px);
   z-index: 101;
   pointer-events: none;
 }
@@ -120,7 +126,8 @@
 
 /* recebido: canto de cima à esquerda */
 :root[data-holo] [data-holo-bubble="in"] {
-  clip-path: polygon(calc(var(--holo-cut) + 1.5px) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px calc(var(--holo-cut) + 1.5px));
+  --holo-diag-out: calc(var(--holo-cut) + 1.5px + var(--hs-l, 0px) + var(--hs-t, 0px));
+  clip-path: polygon(var(--holo-diag-out) -2px, calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px), -2px var(--holo-diag-out));
 }
 
 :root[data-holo] [data-holo-bubble="in"]::before {
@@ -130,12 +137,13 @@
 :root[data-holo] [data-holo-bubble="in"]::after {
   clip-path: polygon(evenodd,
     var(--holo-cut) 0, 100% 0, 100% 100%, 0 100%, 0 var(--holo-cut), var(--holo-cut) 0,
-    var(--holo-cut-in) 1px, 1px var(--holo-cut-in), 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px), calc(100% - 1px) 1px, var(--holo-cut-in) 1px);
+    var(--holo-cut-in) var(--holo-lw, 1px), var(--holo-lw, 1px) var(--holo-cut-in), var(--holo-lw, 1px) calc(100% - var(--holo-lw, 1px)), calc(100% - var(--holo-lw, 1px)) calc(100% - var(--holo-lw, 1px)), calc(100% - var(--holo-lw, 1px)) var(--holo-lw, 1px), var(--holo-cut-in) var(--holo-lw, 1px));
 }
 
 /* enviado: canto de cima à direita (espelho) */
 :root[data-holo] [data-holo-bubble="out"] {
-  clip-path: polygon(-2px -2px, calc(100% - var(--holo-cut) - 1.5px) -2px, calc(100% + 2px) calc(var(--holo-cut) + 1.5px), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
+  --holo-diag-out: calc(var(--holo-cut) + 1.5px + var(--hs-r, 0px) + var(--hs-t, 0px));
+  clip-path: polygon(-2px -2px, calc(100% - var(--holo-diag-out)) -2px, calc(100% + 2px) var(--holo-diag-out), calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
 }
 
 :root[data-holo] [data-holo-bubble="out"]::before {
@@ -145,7 +153,7 @@
 :root[data-holo] [data-holo-bubble="out"]::after {
   clip-path: polygon(evenodd,
     0 0, calc(100% - var(--holo-cut)) 0, 100% var(--holo-cut), 100% 100%, 0 100%, 0 0,
-    1px 1px, 1px calc(100% - 1px), calc(100% - 1px) calc(100% - 1px), calc(100% - 1px) var(--holo-cut-in), calc(100% - var(--holo-cut-in)) 1px, 1px 1px);
+    var(--holo-lw, 1px) var(--holo-lw, 1px), var(--holo-lw, 1px) calc(100% - var(--holo-lw, 1px)), calc(100% - var(--holo-lw, 1px)) calc(100% - var(--holo-lw, 1px)), calc(100% - var(--holo-lw, 1px)) var(--holo-cut-in), calc(100% - var(--holo-cut-in)) var(--holo-lw, 1px), var(--holo-lw, 1px) var(--holo-lw, 1px));
 }
 
 /* mídia (foto, vídeo, cartão de link) sem cantos arredondados próprios */

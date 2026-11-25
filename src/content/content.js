@@ -59,6 +59,40 @@
     };
   };
 
+  // ---------------------------------------- moldura no pixel (C6/C7)
+  // O Firefox arredonda a caixa das camadas ::before/::after para o pixel da
+  // tela, mas desenha o clip-path delas na posição fracionária: com o balão
+  // em y = 93,4 px a linha de 1 px saía "apagada" (duas fileiras a meia força)
+  // ou sumia. Aqui cada lado da moldura vai para o pixel inteiro mais perto
+  // (--hs-t/r/b/l, lidos pelo _conversation.css) e a espessura vira 1 pixel
+  // da tela (--holo-lw), também com o Windows em 125 %/150 %.
+  // Só lê posição e tamanho dos balões.
+  let snapFrame = 0;
+  const queueSnap = () => { if (!snapFrame) snapFrame = requestAnimationFrame(snapFrames); };
+  const frameResize = new ResizeObserver(queueSnap); // balão mudou de tamanho (foto carregou, reação…)
+  const toPx = (n) => `${Math.round(n * 1000) / 1000}px`;
+  function snapFrames() {
+    snapFrame = 0;
+    if (!current || !current.enabled) return;
+    const dpr = window.devicePixelRatio || 1;
+    const lw = toPx(Math.max(1, Math.floor(dpr)) / dpr);
+    if (root.style.getPropertyValue('--holo-lw') !== lw) root.style.setProperty('--holo-lw', lw);
+    const snap = (v) => Math.round(v * dpr) / dpr;
+    const list = [...document.querySelectorAll('[data-holo-bubble]')];
+    const rects = list.map((el) => el.getBoundingClientRect()); // todas as leituras antes das escritas
+    list.forEach((el, i) => {
+      const r = rects[i];
+      if (!r.width || el.closest('[data-holo-new]')) return; // invisível ou no meio do glitch
+      const key = [snap(r.top) - r.top, r.right - snap(r.right), r.bottom - snap(r.bottom), snap(r.left) - r.left].map(toPx);
+      if (el.__holoSnap === key.join()) return;
+      el.__holoSnap = key.join();
+      ['--hs-t', '--hs-r', '--hs-b', '--hs-l'].forEach((v, k) => el.style.setProperty(v, key[k]));
+    });
+  }
+  window.addEventListener('resize', queueSnap); // janela, zoom (muda o devicePixelRatio)
+  // rolagem suave pode parar em fração de pixel
+  document.addEventListener('scrollend', queueSnap, { capture: true, passive: true });
+
   // ------------------------------------------------------------ balões
   const BUBBLE_DEPTH = 6;
   const markBubble = (container, tk) => {
@@ -71,6 +105,7 @@
         const dir = bg === tk.in ? 'in' : bg === tk.out ? 'out' : null;
         if (dir) {
           el.setAttribute('data-holo-bubble', dir);
+          frameResize.observe(el);
           container.setAttribute('data-holo-dir', dir);
           return dir;
         }
@@ -110,7 +145,7 @@
     for (const { container, dir } of fresh) {
       if (dir !== 'in' || !lastTwo.includes(container)) continue;
       container.setAttribute('data-holo-new', '');
-      setTimeout(() => container.removeAttribute('data-holo-new'), GLITCH_MS + 150);
+      setTimeout(() => { container.removeAttribute('data-holo-new'); queueSnap(); }, GLITCH_MS + 150);
     }
   };
 
@@ -271,11 +306,13 @@
       added.clear();
       scanBubbles(main, tk);
       scanChips(main, panel, tk);
+      queueSnap();
       return;
     }
     const fresh = [];
     for (const node of added) {
       if (!node.isConnected || !main.contains(node)) continue;
+      queueSnap(); // algo entrou na conversa: os balões abaixo podem ter mudado de posição
       fresh.push(...scanBubbles(node, tk));
       scanChips(node, panel, tk);
     }
