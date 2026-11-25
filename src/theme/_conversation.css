@@ -39,7 +39,7 @@
 :root[data-holo] #main > header {
   background: var(--holo-bg) !important;
   border-bottom: 1px solid var(--holo-line) !important;
-  box-shadow: 0 1px 8px rgb(255 90 80 / .18) !important;
+  box-shadow: 0 1px 8px var(--holo-glow-red-soft) !important;
 }
 
 :root[data-holo] [data-testid="conversation-info-header-chat-title"] {
@@ -112,6 +112,19 @@
   font-family: inherit !important;
 }
 
+/* no balão enviado a hora tem cor própria: sobre o verde-água o cinza
+   padrão não passa de 3:1 (scripts/check-contrast.mjs) */
+:root[data-holo] [data-holo-bubble="out"] {
+  --bubble-meta: var(--holo-out-meta) !important;
+  --bubble-meta-icon: var(--holo-out-meta) !important;
+  --WDS-content-deemphasized: var(--holo-out-meta) !important;
+  --WDS-systems-bubble-content-deemphasized: var(--holo-out-meta) !important;
+}
+
+:root[data-holo] [data-holo-bubble="out"] [data-testid="msg-meta"] {
+  color: var(--holo-out-meta) !important;
+}
+
 /* ---------- C9: citação ---------- */
 :root[data-holo] [data-testid="quoted-message"],
 :root[data-holo] [data-testid="quoted-message"] * {
@@ -119,7 +132,8 @@
 }
 
 :root[data-holo] [data-testid="quoted-message"] > div {
-  background: rgb(255 90 80 / .07) !important;
+  /* escurece em vez de tingir: as cores de contato do WhatsApp passam de 4.5:1 também no verde-água */
+  background: rgb(0 0 0 / .35) !important;
   box-shadow: inset 2px 0 0 var(--holo-line) !important;
 }
 

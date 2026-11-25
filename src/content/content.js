@@ -69,7 +69,7 @@
         if (dir) {
           el.setAttribute('data-holo-bubble', dir);
           container.setAttribute('data-holo-dir', dir);
-          return;
+          return dir;
         }
         next.push(...el.children);
       }
@@ -77,12 +77,38 @@
     }
     // figurinha, mensagem apagada…: sem balão pintado, fica sem moldura
     container.setAttribute('data-holo-dir', 'none');
+    return 'none';
   };
 
   const PENDING = `${SEL.msgContainer}:not([data-holo-dir="none"]):not(:has([data-holo-bubble]))`;
+  /** Marca os balões pendentes; devolve os contêineres vistos pela 1ª vez. */
   const scanBubbles = (scope, tk) => {
-    if (scope.matches && scope.matches(PENDING)) markBubble(scope, tk);
-    for (const c of scope.querySelectorAll(PENDING)) markBubble(c, tk);
+    const fresh = [];
+    const list = scope.matches && scope.matches(PENDING) ? [scope] : [];
+    list.push(...scope.querySelectorAll(PENDING));
+    for (const c of list) {
+      const firstTime = !c.hasAttribute('data-holo-dir'); // re-render do React não conta
+      const dir = markBubble(c, tk);
+      if (firstTime) fresh.push({ container: c, dir });
+    }
+    return fresh;
+  };
+
+  // ---------------------------------------------- glitch (F5.1, spec RF-07)
+  // Só em mensagem RECEBIDA que acabou de chegar: no máximo 2 balões novos no
+  // quadro e entre os 2 últimos da conversa. Abrir conversa, trocar de
+  // conversa ou carregar histórico marca muitos de uma vez → sem glitch.
+  const GLITCH_MS = 220;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const maybeGlitch = (fresh, panel) => {
+    if (!current.fx.glitch || reducedMotion.matches || !panel || fresh.length === 0 || fresh.length > 2) return;
+    const all = panel.querySelectorAll(SEL.msgContainer);
+    const lastTwo = [all[all.length - 1], all[all.length - 2]];
+    for (const { container, dir } of fresh) {
+      if (dir !== 'in' || !lastTwo.includes(container)) continue;
+      container.setAttribute('data-holo-new', '');
+      setTimeout(() => container.removeAttribute('data-holo-new'), GLITCH_MS + 150);
+    }
   };
 
   // -------------------------------------------------- separadores de data
@@ -191,12 +217,14 @@
       scanChips(main, panel, tk);
       return;
     }
+    const fresh = [];
     for (const node of added) {
       if (!node.isConnected || !main.contains(node)) continue;
-      scanBubbles(node, tk);
+      fresh.push(...scanBubbles(node, tk));
       scanChips(node, panel, tk);
     }
     added.clear();
+    maybeGlitch(fresh, panel);
   }
 
   new MutationObserver((records) => {

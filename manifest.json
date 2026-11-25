@@ -40,7 +40,8 @@
         "src/theme/_sidebar.css",
         "src/theme/_conversation.css",
         "src/theme/_composer.css",
-        "src/theme/_overlays.css"
+        "src/theme/_overlays.css",
+        "src/theme/_fx.css"
       ],
       "js": [
         "src/shared/config.js",

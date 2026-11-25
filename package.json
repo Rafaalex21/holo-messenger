@@ -10,7 +10,9 @@
     "build": "web-ext build --overwrite-dest",
     "test": "playwright test",
     "prepare": "git config core.hooksPath .githooks",
-    "recon": "node scripts/run-firefox.mjs scripts/recon/ext --no-reload"
+    "recon": "node scripts/run-firefox.mjs scripts/recon/ext --no-reload",
+    "contrast": "node scripts/check-contrast.mjs",
+    "fixtures": "node scripts/serve-fixtures.mjs"
   },
   "webExt": {
     "sourceDir": ".",

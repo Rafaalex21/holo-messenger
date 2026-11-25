@@ -26,6 +26,8 @@
   --holo-out-bg:      #15140a;
   --holo-out-border:  #f0d64a;
   --holo-out-text:    #f6e27a;
+  --holo-out-glow:    rgb(240 214 74 / .28);
+  --holo-out-meta:    #7f9aa0;   /* hora e ticks dentro do balão enviado */
 
   /* destaque */
   --holo-accent:      #5ce1e6;   /* ciano */
@@ -34,6 +36,10 @@
   --holo-danger:      #ff5a50;   /* vermelho */
   --holo-glow-color:  rgb(92 225 230 / .35);
   --holo-glow:        0 0 6px var(--holo-glow-color);
+  --holo-glow-red:    rgb(255 90 80 / .35);   /* brilho vermelho (linhas, item ativo) */
+  --holo-glow-red-soft: rgb(255 90 80 / .18);
+  --holo-glow-yellow: rgb(240 214 74 / .4);   /* brilho amarelo (badge) */
+  /* todos os brilhos usam estas variáveis: _fx.css zera tudo com o glow desligado */
 
   /* superfícies translúcidas sobre o fundo (hover, seleção, ativo) */
   --holo-tint-1:      rgb(92 225 230 / .06);
@@ -56,4 +62,6 @@
   --holo-out-bg:      #12524c;
   --holo-out-border:  #3fb8a8;
   --holo-out-text:    #e6fffb;
+  --holo-out-glow:    rgb(63 184 168 / .32);
+  --holo-out-meta:    #a9d6cf;   /* o cinza-azulado padrão fica com 3:1 sobre o verde-água */
 }

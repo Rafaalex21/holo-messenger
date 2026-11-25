@@ -1,0 +1,87 @@
+/*
+ * Efeitos opcionais (spec RF-07, §6.2 — F5).
+ * Cada um liga/desliga por uma palavra em <html data-holo-fx="…">, que o
+ * content.js escreve a partir de config.fx { scanlines, glow, glitch }.
+ *
+ * === SELECTORS ===
+ *   [data-holo-dir="in|out"]   msg-container marcado pelo content.js
+ *   [data-holo-new]            mensagem recebida que acabou de chegar (content.js, ~370 ms)
+ */
+
+/* ---------- glow ----------
+ * Todos os brilhos do tema leem estas variáveis (_tokens.css). Desligado, elas
+ * viram transparentes e nenhum arquivo precisa saber da opção. */
+:root[data-holo]:not([data-holo-fx~="glow"]) {
+  --holo-out-glow: transparent;
+  --holo-glow-color: transparent;
+  --holo-glow: 0 0 0 transparent;
+  --holo-glow-red: transparent;
+  --holo-glow-red-soft: transparent;
+  --holo-glow-yellow: transparent;
+}
+
+/* balões: drop-shadow no contêiner segue o recorte chanfrado do filho
+   (box-shadow no próprio balão seria cortado pelo clip-path) */
+:root[data-holo][data-holo-fx~="glow"] [data-holo-dir="in"] {
+  filter: drop-shadow(0 0 3px var(--holo-glow-color));
+}
+
+:root[data-holo][data-holo-fx~="glow"] [data-holo-dir="out"] {
+  filter: drop-shadow(0 0 3px var(--holo-out-glow));
+}
+
+/* títulos com leve brilho de tela */
+:root[data-holo][data-holo-fx~="glow"] :is([data-testid="conversation-info-header-chat-title"], #side header h1) {
+  text-shadow: 0 0 6px var(--holo-glow-color);
+}
+
+/* ---------- scanlines ----------
+ * Camada fixa por cima de tudo, sem capturar cliques. Bem sutil (2 % de
+ * branco a cada 3 px) para não alterar fotos e vídeos de forma perceptível. */
+:root[data-holo][data-holo-fx~="scanlines"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / .022) 0 1px, transparent 1px 3px);
+}
+
+/* ---------- glitch (≤ 250 ms) em mensagem recebida nova ---------- */
+@keyframes holo-glitch-shift {
+  0%   { transform: translateX(0);                   opacity: .35; }
+  20%  { transform: translateX(-4px) skewX(-8deg);   opacity: 1; }
+  40%  { transform: translateX(3px);                 clip-path: inset(10% 0 45% 0); }
+  60%  { transform: translateX(-2px) skewX(4deg);    clip-path: inset(55% 0 5% 0); }
+  80%  { transform: translateX(1px);                 clip-path: none; }
+  100% { transform: none;                            opacity: 1; }
+}
+
+@keyframes holo-glitch-rgb {
+  0%, 100% { text-shadow: none; }
+  20%      { text-shadow: -2px 0 rgb(255 90 80 / .85), 2px 0 rgb(92 225 230 / .85); }
+  60%      { text-shadow: 1px 0 rgb(255 90 80 / .85), -1px 0 rgb(92 225 230 / .85); }
+}
+
+:root[data-holo][data-holo-fx~="glitch"] [data-holo-new] {
+  animation: holo-glitch-shift 220ms steps(5, end) 1;
+}
+
+:root[data-holo][data-holo-fx~="glitch"] [data-holo-new] [data-holo-bubble] {
+  animation: holo-glitch-rgb 220ms steps(5, end) 1;
+}
+
+/* ---------- movimento reduzido (RNF-05) ----------
+ * O content.js já não marca [data-holo-new] nesse caso; isto é a segunda
+ * trava, caso a preferência mude com a página aberta. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-holo] [data-holo-new],
+  :root[data-holo] [data-holo-new] * {
+    animation: none !important;
+  }
+
+  :root[data-holo] .holo-hint,
+  :root[data-holo] .holo-footer * {
+    transition: none !important;
+  }
+}
