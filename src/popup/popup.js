@@ -8,6 +8,8 @@
   const $$ = (sel) => [...document.querySelectorAll(sel)];
   const enabled = $('#enabled');
   const layouts = $$('input[name="buttonLayout"]');
+  const palettes = $$('input[name="palette"]');
+  const effects = $$('input[name="fx"]');
   const modes = $$('input[name="soundMode"]');
   const volume = $('#volume');
   const volumeOut = $('#volumeOut');
@@ -25,6 +27,8 @@
     enabled.checked = c.enabled;
     document.body.classList.toggle('off', !c.enabled);
     for (const r of layouts) r.checked = r.value === c.buttonLayout;
+    for (const r of palettes) r.checked = r.value === c.palette;
+    for (const b of effects) b.checked = !!c.fx[b.value];
     // 'custom' (som próprio, F7) ainda não tem arquivo: aparece como Cyberpunk
     const mode = c.sound.mode === 'custom' ? 'cyberpunk' : c.sound.mode;
     for (const r of modes) r.checked = r.value === mode;
@@ -38,6 +42,13 @@
   HOLO.loadConfig().then(render, () => render(cfg));
 
   enabled.addEventListener('change', () => HOLO.saveConfig({ enabled: enabled.checked }));
+  for (const r of palettes) {
+    r.addEventListener('change', () => { if (r.checked) HOLO.saveConfig({ palette: r.value }); });
+  }
+  // grava os três de uma vez a partir das caixas: dois cliques rápidos não se apagam
+  for (const b of effects) {
+    b.addEventListener('change', () => HOLO.saveConfig({ fx: Object.fromEntries(effects.map((e) => [e.value, e.checked])) }));
+  }
   for (const r of layouts) {
     r.addEventListener('change', () => { if (r.checked) HOLO.saveConfig({ buttonLayout: r.value }); });
   }

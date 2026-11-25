@@ -7,9 +7,9 @@
 </head>
 <body>
   <!--
-    Popup do botão da extensão (spec §9.2). Por enquanto: liga/desliga e
-    layout dos botões do rodapé. Paleta, som e diagnóstico entram na F7.
-    Cada mudança vai para storage.local; o content script aplica ao vivo.
+    Popup do botão da extensão (spec §9.2): liga/desliga, paleta, efeitos,
+    layout dos botões do rodapé, som e diagnóstico. Cada mudança vai para
+    storage.local; o content script aplica ao vivo, sem recarregar.
   -->
   <header class="head">
     <span class="brand">HOLO-MESSENGER</span>
@@ -20,6 +20,32 @@
     <span class="label">TEMA</span>
     <input type="checkbox" id="enabled" class="switch">
   </label>
+
+  <fieldset class="group">
+    <legend class="label">PALETA</legend>
+    <div class="pair">
+      <!-- cor dos balões enviados (os recebidos são sempre ciano) -->
+      <label class="opt">
+        <input type="radio" name="palette" value="yellow">
+        <span class="name">AMARELO</span>
+        <span class="swatch" style="--sw-line: #f0d64a; --sw-fill: #15140a" aria-hidden="true"></span>
+      </label>
+      <label class="opt">
+        <input type="radio" name="palette" value="teal">
+        <span class="name">VERDE-ÁGUA</span>
+        <span class="swatch" style="--sw-line: #3fb8a8; --sw-fill: #12524c" aria-hidden="true"></span>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset class="group fx">
+    <legend class="label">EFEITOS</legend>
+    <div class="chips">
+      <label class="chip"><input type="checkbox" name="fx" value="scanlines"><span>SCANLINES</span></label>
+      <label class="chip"><input type="checkbox" name="fx" value="glow"><span>BRILHO</span></label>
+      <label class="chip"><input type="checkbox" name="fx" value="glitch"><span>GLITCH</span></label>
+    </div>
+  </fieldset>
 
   <fieldset class="group">
     <legend class="label">BOTÕES DO RODAPÉ</legend>

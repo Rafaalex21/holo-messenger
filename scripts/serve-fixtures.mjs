@@ -31,19 +31,45 @@ const themeCss = themeEntry.css;
 const themeJs = themeEntry.js;
 const mainJs = manifest.content_scripts.filter((c) => c.world === 'MAIN').flatMap((c) => c.js);
 
-// browser.* de mentira: o content script lê a config e liga o tema; o
-// "background" entrega os bytes dos sons e registra o plano reserva
-const stub = (palette, buttons, sound) => `<script>
-window.browser = {
-  storage: {
-    local: { get: async () => ({ 'holo:config': { enabled: true, palette: '${palette}', buttonLayout: '${buttons}', sound: { mode: '${sound}', volume: 0.8 } } }), set: async () => {} },
-    onChanged: { addListener() {} }
-  },
-  runtime: { sendMessage: async (m) => {
-    if (m.type === 'holo:sound-bytes') return (await fetch('/assets/sounds/' + m.kind + '.mp3')).arrayBuffer();
-    if (m.type === 'holo:sound-play') (window.__holoBgPlays = window.__holoBgPlays || []).push(m.kind + ':' + m.action);
-  } }
-};
+// browser.storage de mentira, guardado no localStorage: páginas da mesma
+// origem (popup ?stub=1 e WhatsApp de mentira ?holo=1) veem as mesmas
+// configurações, e o evento 'storage' do navegador faz o papel do
+// storage.onChanged entre elas — mudar no popup aplica na aba do WhatsApp,
+// como na extensão de verdade. `defaults` vale enquanto nada foi gravado.
+const storageStub = (defaults) => `<script>
+(() => {
+  const P = 'holo-stub:', listeners = [], defaults = ${JSON.stringify(defaults)};
+  const parse = (v) => (v === null || v === undefined ? undefined : JSON.parse(v));
+  const read = (k) => { let v = null; try { v = localStorage.getItem(P + k); } catch (e) {} return v === null ? defaults[k] : JSON.parse(v); };
+  const local = {
+    get: async (keys) => {
+      const out = {};
+      for (const k of [].concat(keys == null ? Object.keys(defaults) : keys)) { const v = read(k); if (v !== undefined) out[k] = v; }
+      return out;
+    },
+    set: async (o) => {
+      const ch = {};
+      for (const k in o) { ch[k] = { oldValue: read(k), newValue: o[k] }; try { localStorage.setItem(P + k, JSON.stringify(o[k])); } catch (e) {} }
+      listeners.forEach((fn) => fn(ch, 'local'));
+    }
+  };
+  addEventListener('storage', (e) => {
+    if (!e.key || !e.key.startsWith(P)) return;
+    const ch = { [e.key.slice(P.length)]: { oldValue: parse(e.oldValue), newValue: parse(e.newValue) } };
+    listeners.forEach((fn) => fn(ch, 'local'));
+  });
+  window.browser = Object.assign(window.browser || {}, { storage: { local, onChanged: { addListener: (fn) => listeners.push(fn) } } });
+})();
+</script>`;
+
+// o "background" entrega os bytes dos sons e registra o plano reserva
+const stub = (palette, buttons, sound) => storageStub({
+  'holo:config': { enabled: true, palette, buttonLayout: buttons, sound: { mode: sound, volume: 0.8 } }
+}) + `<script>
+window.browser.runtime = { sendMessage: async (m) => {
+  if (m.type === 'holo:sound-bytes') return (await fetch('/assets/sounds/' + m.kind + '.mp3')).arrayBuffer();
+  if (m.type === 'holo:sound-play') (window.__holoBgPlays = window.__holoBgPlays || []).push(m.kind + ':' + m.action);
+} };
 </script>`;
 
 function inject(html, palette, buttons, sound) {
@@ -64,17 +90,8 @@ http.createServer((req, res) => {
   const ext = path.extname(file);
   let body = fs.readFileSync(file);
   if (ext === '.html' && url.searchParams.has('stub')) {
-    // /src/popup/popup.html?stub=1 → storage em memória (get/set/onChanged) para ver o popup fora do Firefox
-    body = body.toString('utf8').replace('<script', `<script>
-const holoStore = {}, holoListeners = [];
-window.browser = { storage: {
-  local: {
-    get: async (k) => (k in holoStore ? { [k]: holoStore[k] } : {}),
-    set: async (o) => { const ch = {}; for (const k in o) { ch[k] = { oldValue: holoStore[k], newValue: o[k] }; holoStore[k] = o[k]; } holoListeners.forEach((fn) => fn(ch, 'local')); }
-  },
-  onChanged: { addListener: (fn) => holoListeners.push(fn) } },
-  runtime: { getURL: (p) => '/' + p } };
-</script>
+    // /src/popup/popup.html?stub=1 → storage compartilhado (acima) para usar o popup fora do Firefox
+    body = body.toString('utf8').replace('<script', storageStub({}) + `<script>window.browser.runtime = { getURL: (p) => '/' + p };</script>
 <script`);
   }
   if (ext === '.html' && url.searchParams.has('holo')) {
