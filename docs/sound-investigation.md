@@ -42,8 +42,23 @@ Inspeção de 25/11/2026 com `npm run recon`, Firefox 161 e WhatsApp Web em pt-B
 | Fim | `pause()`, depois `src = ""` e `load()` (evento `emptied`) | `pause()` do elemento da chamada quando desliga |
 | Outros sinais | título pisca `(N)` a cada 2 s enquanto toca | `getUserMedia({audio})`, 3 `RTCPeerConnection`; a conexão fica `connected` em ~4 s, **antes** de atenderem (é com o servidor) |
 
-Arquivos que o WhatsApp **criou mas não tocou** nessa sessão: `lsK0FC6wi8C.m4a` (antes da ligação) e `l-ut9G1w4eu.ogg` (logo depois de ligar). Prováveis sons de "conectando/encerrada"; o diagnóstico do popup avisa se algum tocar.
+Arquivos que o WhatsApp **criou mas não tocou** nessa sessão: `lsK0FC6wi8C.m4a` (antes da ligação) e `l-ut9G1w4eu.ogg` (logo depois de ligar). Na v3, `l-ut9G1w4eu.ogg` se mostrou o bipe de fim de ligação (fica o original); o diagnóstico do popup avisa se outro tocar.
 
 ### Consequências
 1. **Recebida:** igual à mensagem. `page-hook.js` reconhece `kAbvQpjkfMK.ogg` (plano B: `playSound` + `loop`) e espelha play → pause/`emptied`. Feito.
-2. **Feita:** não dá para trocar só interceptando arquivo, e o elemento da chamada carrega também a voz depois que atendem. O plano é silenciar esse elemento **enquanto chama** e tocar o `call-outgoing` em loop, devolvendo o som quando atenderem. Falta um sinal confiável de "atendeu": inspeção v3 (marcadores do DOM da tela de ligação e `mute`/`unmute` das trilhas remotas).
+2. **Feita:** não dá para trocar só interceptando arquivo, e o elemento da chamada carrega também a voz depois que atendem. Solução: silenciar esse elemento **enquanto chama** e tocar o `call-outgoing` em loop, devolvendo o som quando atenderem (sinal confirmado na v3, abaixo). Feito.
+
+### Inspeção v3 (25/11/2026): o sinal de "atendeu"
+
+Ligação feita, atendida ~30 s depois, ~8 s de conversa; depois uma recebida, atendida.
+
+| Momento | Feita | Recebida |
+|---|---|---|
+| Tela de ligação aberta | `voip-container-audio-call` aparece (~0,4 s **antes** do `play()` do elemento da chamada) | `voip-container-audio-call` aparece logo depois do toque |
+| Elemento da chamada (`srcObject`) | `play()` assim que começa a chamar — o "tu… tu…" sai dele | `play()` só **depois** de atender (toque já parado) |
+| Atendeu | `voip-call-timer` aparece (com `voip_voice_call_top_right_overlay` e banners do microfone) | toque: `pause` + `src` + `load`; ~0,1 s depois `voip-call-timer` e o `play()` do elemento da chamada |
+| Desligou | `pause()` do elemento da chamada, bipe `l-ut9G1w4eu.ogg` (0,56 s, volume 0,5), a tela some | igual |
+
+Nenhum evento `track`/`mute`/`unmute` do WebRTC foi visto, então o sinal é só o DOM (presença de `data-testid`, sem ler texto).
+
+Regra em `page-hook.js`: quando um `<audio>` com `srcObject` dá `play()` com `voip-container-audio-call` na tela, **sem** `voip-call-timer`, sem toque de recebida tocando nem parado há menos de 5 s, e o modo é `replace` → o elemento fica `muted` e sai `call-outgoing:play`. Termina (volta o `muted` de antes e sai `call-outgoing:stop`) quando aparece o cronômetro, a tela some, o elemento dá `pause`/`ended`/`emptied`, ou depois de 70 s (trava para nunca deixar uma chamada muda). Chamada de vídeo e modo mudo ficam intactos. O bipe de fim de ligação passa direto e não aparece no diagnóstico.
