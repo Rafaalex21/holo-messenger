@@ -16,7 +16,7 @@
  */
 (() => {
   if (window.holoRecon) { console.log('[holoRecon] já estava carregado'); return; }
-  const R = window.holoRecon = { sound: [], startedAt: new Date().toISOString(), version: 2 };
+  const R = window.holoRecon = { sound: [], startedAt: new Date().toISOString(), version: 3 };
   const t0 = performance.now();
   const log = (kind, info) => {
     R.sound.push(Object.assign({ ms: Math.round(performance.now() - t0), kind }, info));
@@ -124,6 +124,14 @@
       const n = ++pcN;
       log('rtc.new', { pc: n });
       pc.addEventListener('connectionstatechange', () => log('rtc.state', { pc: n, state: pc.connectionState }));
+      // v3: trilhas remotas — "unmute" costuma marcar o início do áudio de verdade
+      pc.addEventListener('track', (e) => {
+        const t = e.track;
+        log('rtc.track', { pc: n, kind: t.kind, muted: t.muted });
+        t.addEventListener('mute', () => log('rtc.track.mute', { pc: n, kind: t.kind }));
+        t.addEventListener('unmute', () => log('rtc.track.unmute', { pc: n, kind: t.kind }));
+        t.addEventListener('ended', () => log('rtc.track.ended', { pc: n, kind: t.kind }));
+      });
       return pc;
     };
     PCHook.prototype = PC.prototype;
@@ -170,6 +178,37 @@
     checkTitle();
   };
   watchTitle();
+
+  // v3: marcadores da tela de ligação. Só o NOME (data-testid / role) dos
+  // elementos que aparecem e somem — nunca texto, nome do contato ou foto.
+  const CALL_MARK = /call|voip|ring|dial|hang|mute|speaker|timer|duration/i;
+  const markOf = (el) => {
+    if (el.nodeType !== 1 || el.closest('#pane-side')) return null; // lista de conversas: só ruído
+    const tid = el.getAttribute('data-testid');
+    if (tid && /^mute-notifications/.test(tid)) return null;
+    if (tid && CALL_MARK.test(tid)) return 'testid:' + tid;
+    const role = el.getAttribute('role');
+    if (role === 'timer' || role === 'alertdialog') return 'role:' + role;
+    return null;
+  };
+  const scanMarks = (node, kind) => {
+    if (node.nodeType !== 1) return;
+    const seen = new Set();
+    for (const el of [node, ...node.querySelectorAll('[data-testid], [role="timer"], [role="alertdialog"]')]) {
+      const m = markOf(el);
+      if (m && !seen.has(m)) { seen.add(m); log(kind, { mark: m }); }
+    }
+  };
+  const watchCallUi = () => {
+    if (!document.body) { setTimeout(watchCallUi, 300); return; }
+    new MutationObserver((recs) => {
+      for (const r of recs) {
+        for (const n of r.addedNodes) scanMarks(n, 'ui.add');
+        for (const n of r.removedNodes) scanMarks(n, 'ui.remove');
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  };
+  watchCallUi();
   // recursos de áudio já carregados antes do script
   R.preloadedAudio = performance.getEntriesByType('resource')
     .filter((e) => /\.(mp3|ogg|oga|wav|m4a|aac|opus)(\?|$)/i.test(e.name) || e.initiatorType === 'audio')

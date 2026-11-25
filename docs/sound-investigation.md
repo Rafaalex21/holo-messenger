@@ -30,3 +30,20 @@ Inspeção de 25/11/2026 com `npm run recon`, Firefox 161 e WhatsApp Web em pt-B
 4. **O plano B (título) continua como fallback,** mas depende de confirmar o formato do título na próxima inspeção.
 5. **O plano C (`Notification` silenciosa)** depende do teste com a permissão concedida.
 6. **O diagnóstico do popup (F8.2) deve avisar** quando chega mensagem, o título sobe e nenhum `play()` compatível foi visto. Isso indica que o hash ou a API mudaram.
+
+## Ligações (F6.0, inspeção de 25/11/2026)
+
+`npm run recon` v2 (ganchos de `pause`/`ended`/`loop`/`load`, Web Audio, WebRTC e `getUserMedia`), com uma ligação feita (chamou ~40 s sem atender) e uma recebida (tocou ~30 s, recusada).
+
+| | Ligação **recebida** | Ligação **feita** (chamando) |
+|---|---|---|
+| Como o toque sai | `new Audio(".../kAbvQpjkfMK.ogg")`, `loop = true`, `play()` — pela mesma função `playSound` da mensagem | **Não há arquivo.** O "tu… tu…" vem no áudio da própria chamada: um `new Audio()` com `srcObject` (stream WebRTC), fora do DOM, que toca do início ao fim da ligação |
+| Duração do arquivo | 2,75 s (repete) | — |
+| Fim | `pause()`, depois `src = ""` e `load()` (evento `emptied`) | `pause()` do elemento da chamada quando desliga |
+| Outros sinais | título pisca `(N)` a cada 2 s enquanto toca | `getUserMedia({audio})`, 3 `RTCPeerConnection`; a conexão fica `connected` em ~4 s, **antes** de atenderem (é com o servidor) |
+
+Arquivos que o WhatsApp **criou mas não tocou** nessa sessão: `lsK0FC6wi8C.m4a` (antes da ligação) e `l-ut9G1w4eu.ogg` (logo depois de ligar). Prováveis sons de "conectando/encerrada"; o diagnóstico do popup avisa se algum tocar.
+
+### Consequências
+1. **Recebida:** igual à mensagem. `page-hook.js` reconhece `kAbvQpjkfMK.ogg` (plano B: `playSound` + `loop`) e espelha play → pause/`emptied`. Feito.
+2. **Feita:** não dá para trocar só interceptando arquivo, e o elemento da chamada carrega também a voz depois que atendem. O plano é silenciar esse elemento **enquanto chama** e tocar o `call-outgoing` em loop, devolvendo o som quando atenderem. Falta um sinal confiável de "atendeu": inspeção v3 (marcadores do DOM da tela de ligação e `mute`/`unmute` das trilhas remotas).

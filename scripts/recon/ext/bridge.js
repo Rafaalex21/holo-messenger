@@ -4,7 +4,7 @@
     login: 'Escaneie o QR code com o celular (Aparelhos conectados).',
     sound: 'Deixe uma conversa aberta e peça para alguém te mandar mensagem em OUTRA conversa, para o som tocar.',
     chat: 'Som capturado. Agora abra uma conversa que tenha mensagens recebidas e enviadas.',
-    calls: '1) Ligue (voz) para alguém e deixe chamar uns 10 s sem atender; desligue. 2) Peça para alguém te ligar e deixe tocar uns 10 s; recuse. 3) Clique em "Terminei, salvar".',
+    calls: '1) Ligue (voz) para alguém: deixe chamar uns 8 s, a pessoa ATENDE, conversem uns 5 s e desliguem. 2) A pessoa te liga: deixe tocar uns 5 s, ATENDA, uns 5 s e desliguem. 3) Clique em "Terminei, salvar".',
     saving: 'Gerando os arquivos (sem texto, nomes nem fotos)…',
     saved: 'Salvo em Downloads/holo-recon. Esta janela fecha sozinha.',
     error: 'Não consegui salvar. Avise o Claude.'

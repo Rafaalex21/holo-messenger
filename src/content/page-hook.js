@@ -18,13 +18,16 @@
  */
 (() => {
   const root = document.documentElement;
-  const WA_SOUND = /^https:\/\/static\.whatsapp\.net\/rsrc\.php\/.+\.mp3$/;
+  const WA_SOUND = /^https:\/\/static\.whatsapp\.net\/rsrc\.php\/.+\.(mp3|ogg|m4a)$/;
 
   // Arquivos conhecidos (docs/sound-investigation.md). O hash muda em deploys
-  // do WhatsApp; para mensagem há um plano B pela pilha (função playSound).
+  // do WhatsApp; por isso há um plano B pela pilha (os dois toques saem da
+  // mesma função playSound): em loop = ligação recebida, sem loop = mensagem.
   const SOUNDS = [
-    { kind: 'message', file: /\/BS_BUUXbKq5\.mp3$/, loop: false }
-    // F6.0: toques de ligação entram aqui depois da inspeção
+    { kind: 'message', file: /\/BS_BUUXbKq5\.mp3$/, loop: false },
+    { kind: 'call-incoming', file: /\/kAbvQpjkfMK\.ogg$/, loop: true }
+    // ligação feita: o "tu… tu…" vem dentro do áudio da própria chamada
+    // (WebRTC), não de um arquivo — ver docs/sound-investigation.md §Ligações
   ];
 
   const classify = (el) => {
@@ -32,8 +35,8 @@
     const url = el.currentSrc || el.src || '';
     if (!WA_SOUND.test(url)) return null;
     for (const s of SOUNDS) if (s.file.test(url)) return s;
-    // plano B: arquivo de mensagem com hash novo, fora do DOM, tocado por playSound
-    if (!el.isConnected && /playSound/.test(new Error().stack || '')) return SOUNDS[0];
+    // plano B: hash novo, fora do DOM, tocado por playSound
+    if (!el.isConnected && /playSound/.test(new Error().stack || '')) return el.loop ? SOUNDS[1] : SOUNDS[0];
     return null;
   };
 
