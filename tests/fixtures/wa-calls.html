@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — sons e ligações</title>
+  <!--
+    Código nosso (pode ir para o repositório). Repete, com os mesmos sinais,
+    o que a inspeção gravou no WhatsApp Web (docs/sound-investigation.md):
+    arquivos de toque, play/pause/src/load, srcObject da chamada e os
+    data-testid da tela de ligação. Abrir com ?holo=1 (scripts/serve-fixtures.mjs)
+    para a extensão entrar; os testes E2E em tests/e2e usam esta página.
+  -->
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 16px; }
+    button { margin: 2px; }
+    #call:empty::before { content: "sem ligação"; color: #888; }
+  </style>
+</head>
+<body>
+  <h1>WhatsApp de mentira</h1>
+
+  <section aria-label="Mensagens">
+    <button type="button" id="msg">Chega mensagem</button>
+  </section>
+
+  <section aria-label="Ligação feita">
+    <button type="button" id="dial">Ligar</button>
+    <button type="button" id="dialVideo">Ligar por vídeo</button>
+    <button type="button" id="remoteAnswer">Atenderam</button>
+    <button type="button" id="hangUp">Desligar</button>
+  </section>
+
+  <section aria-label="Ligação recebida">
+    <button type="button" id="incoming">Me ligam</button>
+    <button type="button" id="answer">Atender</button>
+    <button type="button" id="decline">Recusar</button>
+  </section>
+
+  <div id="call" role="region" aria-label="Tela de ligação"></div>
+
+  <script>
+    // URLs iguais às do WhatsApp (o teste corta a rede para static.whatsapp.net)
+    const WA = 'https://static.whatsapp.net/rsrc.php/';
+    const FILES = {
+      message: WA + 'yN/r/BS_BUUXbKq5.mp3',
+      ring: WA + 'y_/r/kAbvQpjkfMK.ogg',
+      end: WA + 'yC/r/l-ut9G1w4eu.ogg'
+    };
+    const callBox = document.getElementById('call');
+    const later = (ms, fn) => setTimeout(fn, ms);
+    let ring = null;    // toque da ligação recebida
+    let stream = null;  // áudio da chamada (WebRTC)
+    let ac = null;
+
+    // o mesmo nome da função do WhatsApp (o plano B do page-hook olha a pilha)
+    function playSound(url, loop) {
+      const a = new Audio(url);
+      a.loop = loop;
+      a.play().catch(() => {});
+      return a;
+    }
+
+    const show = (...ids) => {
+      for (const id of ids) {
+        const d = document.createElement('div');
+        d.dataset.testid = id;
+        d.textContent = id;
+        callBox.append(d);
+      }
+    };
+    const clear = () => callBox.replaceChildren();
+
+    // áudio da chamada: um <audio> fora do DOM com srcObject. Enquanto chama,
+    // ele carrega o "tu… tu…" (aqui, um tom de 425 Hz)
+    const startCallAudio = () => {
+      ac = ac || new AudioContext();
+      const osc = ac.createOscillator();
+      osc.frequency.value = 425;
+      const dest = ac.createMediaStreamDestination();
+      osc.connect(dest);
+      osc.start();
+      stream = new Audio();
+      stream.srcObject = dest.stream;
+      stream.play().catch(() => {});
+    };
+    const endCall = () => {
+      if (stream) stream.pause();
+      stream = null;
+      playSound(FILES.end, false);
+      clear();
+    };
+
+    document.getElementById('msg').onclick = () => playSound(FILES.message, false);
+
+    document.getElementById('dial').onclick = () => {
+      show('voip_outgoing_loading_preview_wrapper');
+      later(50, () => {
+        clear();
+        show('voip-container-audio-call', 'voip-call-participant-info-name', 'voip-call-participant-info-call-state-text', 'mic-mute');
+        later(100, startCallAudio); // recon: ~0,36 s depois da tela
+      });
+    };
+    document.getElementById('dialVideo').onclick = () => {
+      show('voip-container-video-call', 'mic-mute');
+      later(100, startCallAudio);
+    };
+    document.getElementById('remoteAnswer').onclick = () => {
+      show('voip-microphone-health-banner-wrapper', 'voip_voice_call_top_right_overlay', 'voip-call-timer');
+    };
+    document.getElementById('hangUp').onclick = endCall;
+
+    document.getElementById('incoming').onclick = () => {
+      ring = playSound(FILES.ring, true);
+      show('voip-container-audio-call', 'voip-call-participant-info-name', 'voip-call-participant-info-call-state-text', 'mic-mute');
+    };
+    const stopRing = () => {
+      if (!ring) return;
+      ring.pause();
+      ring.src = '';
+      ring.load();
+      ring = null;
+    };
+    document.getElementById('answer').onclick = () => {
+      stopRing();
+      // recon: o cronômetro aparece e só depois o áudio da chamada toca
+      later(100, () => {
+        show('voip_voice_call_top_right_overlay', 'voip-call-timer');
+        startCallAudio();
+      });
+    };
+    document.getElementById('decline').onclick = () => { stopRing(); clear(); };
+  </script>
+</body>
+</html>
