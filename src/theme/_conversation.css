@@ -88,6 +88,9 @@
   --holo-diag-w: 1.25px;
   --holo-diag-gap: 2px;
   --holo-diag-h: calc(var(--holo-diag-w) + var(--holo-diag-gap));
+  /* comprimento exato da diagonal (cut·√2): 1 px a mais fazia as pontas
+     passarem do lado de fora das bordas reta — dois "chifrinhos" no canto */
+  --holo-diag-len: calc(var(--holo-cut) * 1.4142);
   position: relative;
   border: 0 !important;
   border-radius: 0 !important;
@@ -109,8 +112,7 @@
 }
 
 :root[data-holo] [data-holo-bubble]::before {
-  /* comprimento da diagonal (cut·√2) + 1 px para as pontas encostarem nas bordas */
-  width: calc(var(--holo-cut) * 1.4142 + 1px);
+  width: var(--holo-diag-len);
   height: var(--holo-diag-h);
   top: calc(var(--holo-cut) / 2 - var(--holo-diag-h) / 2 + var(--holo-diag-h) * .3536);
   /* girada, o "embaixo" da barra aponta para dentro do balão nos dois lados */
@@ -122,7 +124,7 @@
 }
 
 :root[data-holo] [data-holo-bubble="in"]::before {
-  left: calc(var(--holo-cut) / 2 - (var(--holo-cut) * 1.4142 + 1px) / 2 + var(--holo-diag-h) * .3536);
+  left: calc(var(--holo-cut) / 2 - var(--holo-diag-len) / 2 + var(--holo-diag-h) * .3536);
   transform: rotate(-45deg);
 }
 
@@ -131,7 +133,7 @@
 }
 
 :root[data-holo] [data-holo-bubble="out"]::before {
-  right: calc(var(--holo-cut) / 2 - (var(--holo-cut) * 1.4142 + 1px) / 2 + var(--holo-diag-h) * .3536);
+  right: calc(var(--holo-cut) / 2 - var(--holo-diag-len) / 2 + var(--holo-diag-h) * .3536);
   transform: rotate(45deg);
 }
 
