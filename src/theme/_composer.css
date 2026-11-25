@@ -127,3 +127,7 @@
 
 :root[data-holo] .holo-hint[data-holo-action="call"] .holo-key { color: var(--holo-warn); }
 :root[data-holo] .holo-hint[data-holo-action="close"] .holo-key { color: var(--holo-danger); }
+
+/* layout Sony: cores do controle (triângulo verde, círculo vermelho) */
+:root[data-holo] .holo-footer[data-holo-layout="playstation"] .holo-hint[data-holo-action="call"] .holo-key { color: var(--holo-pad-green); }
+:root[data-holo] .holo-footer[data-holo-layout="playstation"] .holo-hint[data-holo-action="close"] .holo-key { color: var(--holo-pad-red); }

@@ -34,6 +34,8 @@
   --holo-accent-rgb:  92, 225, 230;
   --holo-warn:        #f0d64a;   /* amarelo (badges) */
   --holo-danger:      #ff5a50;   /* vermelho */
+  --holo-pad-green:   #3ddc97;   /* triângulo no layout Sony (cores do controle) */
+  --holo-pad-red:     #ff5a5f;   /* círculo no layout Sony */
   --holo-glow-color:  rgb(92 225 230 / .35);
   --holo-glow:        0 0 6px var(--holo-glow-color);
   --holo-glow-red:    rgb(255 90 80 / .35);   /* brilho vermelho (linhas, item ativo) */

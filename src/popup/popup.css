@@ -27,6 +27,8 @@
   --accent: #5ce1e6;
   --warn: #f0d64a;
   --danger: #ff5a50;
+  --pad-green: #3ddc97; /* Sony: triângulo */
+  --pad-red: #ff5a5f;   /* Sony: círculo */
   --tint: rgb(92 225 230 / .12);
   color-scheme: dark;
 }
@@ -147,6 +149,8 @@ body {
 .key circle:first-child { stroke-width: 1; }
 .key.call { color: var(--warn); }
 .key.close { color: var(--danger); }
+.opt.sony .key.call { color: var(--pad-green); }
+.opt.sony .key.close { color: var(--pad-red); }
 
 /* tema desligado: opções apagadas, mas ainda dá para escolher */
 body.off .group { opacity: .55; }
