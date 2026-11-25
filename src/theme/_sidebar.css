@@ -104,19 +104,40 @@
   background: var(--holo-tint-1) !important;
 }
 
-/* ---------- C3: badge de não lidas ----------
-   No jogo é só o número em amarelo ao lado do nome, sem caixa. */
-:root[data-holo] [data-testid="icon-unread-count"] {
-  background: transparent !important;
-  color: var(--holo-warn) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--holo-font-ui) !important;
-  font-weight: 700 !important;
-  font-size: 15px !important;
-  min-width: 0 !important;
-  padding: 0 2px !important;
+/* ---------- C3: não lidas ----------
+   Como no jogo: só o número em amarelo logo depois do nome, sem caixa.
+   O content.js copia o número para [data-holo-unread] no pai do nome; o
+   ::after vira um item do flex logo depois dele. A bolinha original some só
+   nas linhas marcadas (se o script falhar, o WhatsApp continua mostrando). */
+:root[data-holo] #pane-side [data-holo-unread]::after {
+  content: attr(data-holo-unread);
+  flex: none;
+  order: 0;
+  margin: 0 auto 0 .45em; /* encosta no nome e empurra o resto (mudo, etc.) para a direita */
+  align-self: center;
+  color: var(--holo-warn);
+  font: 700 15px/1 var(--holo-font-ui);
+  letter-spacing: 0;
+  text-transform: none;
   text-shadow: 0 0 6px var(--holo-glow-yellow);
+}
+
+/* o nome não estica mais (senão o número iria para a ponta direita) */
+:root[data-holo] #pane-side [data-holo-unread] > span[title] {
+  flex-grow: 0 !important;
+  min-width: 0;
+}
+
+/* o que vem depois do nome (ícones) passa para depois do número */
+:root[data-holo] #pane-side [data-holo-unread] > span[title] ~ * {
+  order: 1;
+}
+
+:root[data-holo] #pane-side [data-testid="cell-frame-container"]:has([data-holo-unread]) :is(
+  [data-testid="icon-unread-count"],
+  :has(> [data-testid="icon-unread-count"])
+) {
+  display: none !important;
 }
 
 /* ---------- C4: busca ---------- */

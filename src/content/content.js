@@ -11,8 +11,11 @@
  *       sequência, então não serve sozinho (docs/selectors.md §2);
  *     - data-holo-chip="date" nos separadores de data (fora das linhas de
  *       mensagem, com o fundo de "mensagem do sistema");
- *     - .holo-footer depois do <footer> da conversa.
- *     Nada aqui lê o texto das mensagens: só cores, posição e atributos.
+ *     - .holo-footer depois do <footer> da conversa;
+ *     - data-holo-unread="N" no pai do nome de cada conversa da lista, para o
+ *       CSS desenhar o contador amarelo logo depois do nome (como no jogo).
+ *     Nada aqui lê o texto das mensagens: só cores, posição, atributos e o
+ *     número do contador de não lidas.
  */
 (() => {
   const HOLO = globalThis.HOLO;
@@ -124,6 +127,29 @@
     }
   };
 
+  // ------------------------------------------ não lidas ao lado do nome
+  // O WhatsApp põe o contador numa bolinha à direita, cada tipo de conversa
+  // (contato, grupo, canal, comunidade) num lugar diferente. Aqui só o número
+  // é copiado para o pai do nome; o CSS desenha e esconde a bolinha original
+  // apenas nas linhas marcadas (se isto falhar, a bolinha continua lá).
+  const UNREAD = '[data-testid="icon-unread-count"]';
+  const LIST_ROW = '[data-testid="cell-frame-container"]';
+  const LIST_NAME = '[data-testid="cell-frame-title"] span[title]';
+  const scanUnread = () => {
+    const side = document.getElementById('pane-side');
+    if (!side) return;
+    for (const row of side.querySelectorAll(LIST_ROW)) {
+      const name = row.querySelector(LIST_NAME);
+      const host = name && name.parentElement;
+      if (!host) continue;
+      const badge = row.querySelector(UNREAD);
+      // só os dígitos do contador; sem número ("marcada como não lida") vira um ponto
+      const n = badge ? (badge.textContent || '').replace(/\D/g, '') || '•' : null;
+      if (n === null) host.removeAttribute('data-holo-unread');
+      else if (host.getAttribute('data-holo-unread') !== n) host.setAttribute('data-holo-unread', n);
+    }
+  };
+
   // ------------------------------------------------------ rodapé CALL/CLOSE
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -222,14 +248,16 @@
   // ------------------------------------------------------- agendamento
   const added = new Set();
   let fullScan = false;
+  let unreadDirty = false;
   let frame = 0;
-  function queueFullScan() { fullScan = true; schedule(); }
+  function queueFullScan() { fullScan = true; unreadDirty = true; schedule(); }
   function schedule() {
     if (!frame) frame = requestAnimationFrame(run);
   }
   function run() {
     frame = 0;
     if (!current || !current.enabled) { added.clear(); ensureFooter(); return; }
+    if (unreadDirty) { unreadDirty = false; scanUnread(); }
     const main = find(SEL.main);
     ensureFooter();
     if (!main) { added.clear(); fullScan = false; return; }
@@ -257,9 +285,14 @@
 
   new MutationObserver((records) => {
     if (!current || !current.enabled) return;
-    for (const r of records) for (const n of r.addedNodes) if (n.nodeType === 1 && !n.hasAttribute('data-holo-injected')) added.add(n);
-    if (added.size) schedule();
-  }).observe(root, { childList: true, subtree: true });
+    const side = document.getElementById('pane-side');
+    for (const r of records) {
+      // lista de conversas mudou (nova linha, contador trocou de 1 para 2…)
+      if (!unreadDirty && side && side.contains(r.target)) unreadDirty = true;
+      for (const n of r.addedNodes) if (n.nodeType === 1 && !n.hasAttribute('data-holo-injected')) added.add(n);
+    }
+    if (added.size || unreadDirty) schedule();
+  }).observe(root, { childList: true, subtree: true, characterData: true });
 
   // ------------------------------------------------------------ início
   HOLO.loadConfig().then(apply, () => apply(HOLO.mergeConfig(null)));
