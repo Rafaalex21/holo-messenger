@@ -12,9 +12,11 @@
  *      cortado, desenha a diagonal com a mesma cor — a borda fecha.
  * Variáveis (opcionais, com padrão via fallback para não vencer quem as define):
  *   --holo-cut (tamanho), --holo-cut-line (borda, ciano), --holo-cut-bg (fundo, painel).
- * O glow (box-shadow) seria cortado pelo clip-path: use .holo-glow no PAI.
+ * Os balões do WhatsApp ([data-holo-bubble], marcados pelo content.js) usam
+ * o mesmo recorte: recebida = canto superior esquerdo, enviada = direito.
+ * O glow (box-shadow) seria cortado pelo clip-path: use .holo-glow-clip no PAI.
  */
-:root[data-holo] :is(.holo-cut-tl, .holo-cut-tr, .holo-cut-br, .holo-cut-bl) {
+:root[data-holo] :is(.holo-cut-tl, .holo-cut-tr, .holo-cut-br, .holo-cut-bl, [data-holo-bubble]) {
   /* a diagonal começa em 50% (a linha do clip-path) e entra 1 px para dentro;
      centrada em 50% ela perderia metade no recorte */
   --holo-diag: transparent 50%, var(--holo-cut-line, var(--holo-accent)) 50% calc(50% + var(--holo-border) + .2px), transparent calc(50% + var(--holo-border) + .2px);
@@ -22,14 +24,14 @@
   border-radius: 0;
 }
 
-:root[data-holo] .holo-cut-tl {
+:root[data-holo] :is(.holo-cut-tl, [data-holo-bubble="in"]) {
   clip-path: polygon(var(--holo-cut) 0, 100% 0, 100% 100%, 0 100%, 0 var(--holo-cut));
   background:
     linear-gradient(to bottom right, var(--holo-diag)) top left / var(--holo-cut) var(--holo-cut) no-repeat border-box,
     var(--holo-cut-bg, var(--holo-bg-panel)) padding-box;
 }
 
-:root[data-holo] .holo-cut-tr {
+:root[data-holo] :is(.holo-cut-tr, [data-holo-bubble="out"]) {
   clip-path: polygon(0 0, calc(100% - var(--holo-cut)) 0, 100% var(--holo-cut), 100% 100%, 0 100%);
   background:
     linear-gradient(to bottom left, var(--holo-diag)) top right / var(--holo-cut) var(--holo-cut) no-repeat border-box,

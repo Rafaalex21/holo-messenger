@@ -8,31 +8,56 @@
     "gecko": {
       "id": "holo-messenger@local",
       "strict_min_version": "140.0",
-      "data_collection_permissions": { "required": ["none"] }
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     }
   },
-  "permissions": ["storage"],
-  "host_permissions": ["https://web.whatsapp.com/*"],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://web.whatsapp.com/*"
+  ],
   "background": {
-    "scripts": ["src/shared/config.js", "src/background/background.js"]
+    "scripts": [
+      "src/shared/config.js",
+      "src/background/background.js"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["https://web.whatsapp.com/*"],
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
       "css": [
         "src/theme/_fonts.css",
         "src/theme/_tokens.css",
         "src/theme/_utils.css",
-        "src/theme/_base.css"
+        "src/theme/_base.css",
+        "src/theme/_sidebar.css",
+        "src/theme/_conversation.css",
+        "src/theme/_composer.css",
+        "src/theme/_overlays.css"
       ],
-      "js": ["src/shared/config.js", "src/content/content.js"],
+      "js": [
+        "src/shared/config.js",
+        "src/shared/selectors.js",
+        "src/content/content.js"
+      ],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/fonts/*.woff2"],
-      "matches": ["https://web.whatsapp.com/*"]
+      "resources": [
+        "assets/fonts/*.woff2"
+      ],
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ]
     }
   ],
   "action": {

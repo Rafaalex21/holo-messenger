@@ -92,3 +92,14 @@ Fonte do app: `Roboto Variable, Roboto, Helvetica Neue…`.
 ## 5. Pendências para a próxima inspeção
 
 Rodar `npm run recon` de novo com menu, modal, foto, áudio e documento na tela, e com o tema claro, para confirmar os itens ❓ (C11, C12, C15 enviar, C17, C18, C20) e o título `(N) WhatsApp` (ver `docs/sound-investigation.md`).
+
+## 6. Descobertas da F4 (na fixture)
+
+- **Balão:** quem pinta o fundo é o filho `div` do `msg-container` (às vezes 4–5 níveis abaixo, em mídia). O `content.js` acha esse elemento pela cor calculada (`--holo-in-bg` / `--holo-out-bg`) e marca `data-holo-bubble="in|out"`; o contêiner ganha `data-holo-dir` (`none` para figurinhas e outros sem balão).
+- **Separador de data:** fica fora das linhas `[role="row"]`, sem `data-testid`, com o fundo de "mensagem do sistema" (`--WDS-systems-bubble-surface-system`, que o tema troca por `--holo-bg-panel`). O `content.js` marca `data-holo-chip="date"`.
+- **Aviso de criptografia:** um `button` fora das linhas, dentro de `conversation-panel-messages`.
+- **`#main`** é `flex` em coluna e ordena os filhos com `order` (cabeçalho 0, corpo 2, rodapé 3). O papel de parede é absoluto e cobre o `#main` inteiro: o que for injetado precisa de `order` alto e `position: relative` + `z-index`.
+- **`drawer-left` fica vazio POR CIMA da lista de conversas.** Pintar o fundo dele esconde a lista inteira: nunca dar `background` aos contêineres `drawer-*`.
+- **Busca:** o fundo arredondado fica no avô do `<input>` (`div:has(> div > input)`). **Campo de digitação:** idem, avô de `conversation-compose-box-input`.
+- **Navegação lateral:** o botão ativo tem `aria-pressed="true"`; os filtros (`#all-filter`…) também.
+- **`wa-web-main-screen`** é o contêiner do app inteiro, não a tela inicial sem conversa: a tela inicial (C21) continua ❓.

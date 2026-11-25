@@ -1,0 +1,121 @@
+/*
+ * Campo de digitação, botões e rodapé CALL / CLOSE
+ * (spec §7: C14, C15, C16 — F4.6, F4.7).
+ *
+ * === SELECTORS === (docs/selectors.md §3)
+ *   #main footer, [data-testid="compose-box"]
+ *   [data-testid="conversation-compose-box-input"]   (contenteditable, role=textbox)
+ *   o fundo arredondado do campo fica no avô do input
+ *   footer button[aria-label="Anexar" | "Emojis, GIFs, figurinhas" | "Mensagem de voz" | "Enviar"]
+ *   .holo-footer                                      injetado pelo content.js
+ */
+
+/* ---------- C14: barra do campo ---------- */
+:root[data-holo] #main footer {
+  background: var(--holo-bg) !important;
+  border-top: 1px solid var(--holo-line) !important;
+}
+
+:root[data-holo] #main footer * {
+  border-radius: 0 !important;
+}
+
+:root[data-holo] #main footer div:has(> div > [data-testid="conversation-compose-box-input"]) {
+  background: var(--holo-bg-panel) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
+}
+
+:root[data-holo] #main footer div:has(> div > [data-testid="conversation-compose-box-input"]:focus) {
+  box-shadow: inset 0 0 0 1px var(--holo-accent), var(--holo-glow) !important;
+}
+
+:root[data-holo] [data-testid="conversation-compose-box-input"] {
+  caret-color: var(--holo-accent);
+  font-size: 15.5px !important;
+}
+
+/* placeholder "Digite uma mensagem" (o WhatsApp desenha num elemento à parte) */
+:root[data-holo] #main footer :is([aria-placeholder], [data-placeholder])::before,
+:root[data-holo] #main footer div:has(> div > [data-testid="conversation-compose-box-input"]) :not([contenteditable]):empty + *,
+:root[data-holo] #main footer [data-testid="compose-box"] [aria-hidden="true"] {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+/* ---------- C15: botões ---------- */
+:root[data-holo] #main footer button {
+  color: var(--holo-accent) !important;
+}
+
+:root[data-holo] #main footer button:hover {
+  background: var(--holo-tint-1) !important;
+}
+
+/* enviar em amarelo */
+:root[data-holo] #main footer button:is([aria-label="Enviar"], [aria-label*="send" i]) {
+  color: var(--holo-warn) !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--holo-warn) !important;
+}
+
+:root[data-holo] #main footer button:is([aria-label="Enviar"], [aria-label*="send" i]) * {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* ---------- C16: rodapé CALL / CLOSE (injetado) ---------- */
+.holo-footer {
+  display: none;
+}
+
+:root[data-holo][data-holo-opts~="footer"] #main > .holo-footer {
+  display: block;
+  flex: 0 0 auto;
+  order: 9999; /* o WhatsApp ordena os filhos do #main com `order` (cabeçalho 0, corpo 2, rodapé 3) */
+  position: relative; /* acima do papel de parede, que é absoluto e cobre o #main todo */
+  z-index: 2;
+  padding: 0 16px 6px;
+  background: var(--holo-bg);
+}
+
+:root[data-holo] .holo-footer-hints {
+  display: flex;
+  justify-content: flex-end;
+  gap: 22px;
+  padding-top: 5px;
+}
+
+:root[data-holo] .holo-hint {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font: 600 13px/1 var(--holo-font-ui);
+  letter-spacing: .14em;
+  color: var(--holo-text);
+}
+
+:root[data-holo] .holo-hint:hover {
+  color: var(--holo-accent);
+  text-shadow: 0 0 6px var(--holo-glow-color);
+}
+
+:root[data-holo] .holo-hint:focus-visible {
+  outline: 1px solid var(--holo-accent);
+  outline-offset: 3px;
+}
+
+:root[data-holo] .holo-key {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font: 400 10px/1 var(--holo-font-mono);
+  letter-spacing: 0;
+}
+
+:root[data-holo] .holo-hint[data-holo-key="Y"] .holo-key { color: var(--holo-warn); }
+:root[data-holo] .holo-hint[data-holo-key="B"] .holo-key { color: var(--holo-danger); }

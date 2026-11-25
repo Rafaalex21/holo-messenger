@@ -6,7 +6,8 @@
 // ficam .wa-ff-profile/ (login do WhatsApp) e docs/recon/raw/.
 //
 // /tests/fixtures/wa-snapshot.html?holo=1[&palette=teal]
-//   devolve a fixture com o CSS da extensão injetado e data-holo no <html>,
+//   devolve a fixture com o CSS e os scripts da extensão (com um
+//   browser.storage de mentira) e data-holo no <html>,
 //   imitando o que o content script faz no WhatsApp de verdade.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -21,8 +22,18 @@ const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const themeCss = manifest.content_scripts[0].css;
 
+const themeJs = manifest.content_scripts[0].js;
+
+// browser.storage de mentira: o content script lê a config e liga o tema
+const stub = (palette) => `<script>
+window.browser = { storage: {
+  local: { get: async () => ({ 'holo:config': { enabled: true, palette: '${palette}' } }), set: async () => {} },
+  onChanged: { addListener() {} } } };
+</script>`;
+
 function inject(html, palette) {
-  const links = themeCss.map((f) => `<link rel="stylesheet" href="/${f}">`).join('\n');
+  const links = themeCss.map((f) => `<link rel="stylesheet" href="/${f}">`).join('\n')
+    + '\n' + stub(palette) + '\n' + themeJs.map((f) => `<script src="/${f}"></script>`).join('\n');
   const attrs = ` data-holo="" data-holo-palette="${palette}" data-holo-fx="scanlines glow glitch"`;
   return html.replace(/<html([^>]*)>/i, `<html$1${attrs}>`).replace(/<\/head>/i, `${links}\n</head>`);
 }

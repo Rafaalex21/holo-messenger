@@ -1,0 +1,160 @@
+/*
+ * Barra de navegação, lista de conversas, busca, filtros e badges
+ * (spec §7: C2, C3, C4, C24 — F4.1).
+ *
+ * === SELECTORS === (docs/selectors.md §3)
+ *   #side, #pane-side
+ *   [data-testid="chatlist-header"]                coluna de navegação
+ *   [data-testid="navbar-primary-section"] button[aria-pressed]
+ *   [data-testid^="list-item-"]                    linha da lista (role=row)
+ *   #pane-side [aria-selected="true"]              conversa aberta
+ *   [data-testid="cell-frame-title" | "cell-frame-secondary" | "chat-list-timestamp"]
+ *   [data-testid="icon-unread-count"]
+ *   [data-testid="chat-list-search-container"]     busca (o fundo fica no avô do <input>)
+ *   [data-testid="filter-button"] button[aria-pressed]   #all-filter…
+ */
+
+/* cantos arredondados do WhatsApp que vêm por variável */
+:root[data-holo],
+:root[data-holo] body.dark,
+:root[data-holo] body.light {
+  --alert-banner-corner-radius: 0 !important;
+  --button-corner-radius: 0 !important;
+  --button-corner-radius-medium: 0 !important;
+  --button-corner-radius-large: 0 !important;
+  --card-corner-radius: 0 !important;
+  --chip-corner-radius: 0 !important;
+  --dialog-corner-radius: 0 !important;
+  --input-corner-radius: 0 !important;
+  --list-cell-corner-radius: 0 !important;
+  --nav-list-cell-corner-radius: 0 !important;
+  --infochip-medium-radius: 0 !important;
+  --image-corner-radius: 0 !important;
+}
+
+/* ---------- C24: coluna de navegação ---------- */
+:root[data-holo] [data-testid="chatlist-header"] {
+  background: var(--holo-bg) !important;
+  border-right: 1px solid rgb(255 90 80 / .25);
+}
+
+:root[data-holo] [data-testid="navbar-primary-section"] button,
+:root[data-holo] [data-testid="navbar-primary-section"] button * {
+  border-radius: 0 !important;
+}
+
+:root[data-holo] [data-testid="navbar-primary-section"] button[aria-pressed="true"] {
+  background: var(--holo-tint-1) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line), 0 0 6px rgb(255 90 80 / .35) !important;
+}
+
+:root[data-holo] [data-testid="navbar-primary-section"] button[aria-pressed="true"] svg {
+  color: var(--holo-line);
+}
+
+/* ---------- C2: painel e lista ---------- */
+:root[data-holo] #side {
+  background: var(--holo-bg) !important;
+  border-right: 1px solid rgb(255 90 80 / .25);
+}
+
+/* título "WhatsApp" do painel e títulos de seção */
+:root[data-holo] #side header h1,
+:root[data-holo] #side header [role="heading"] {
+  font-family: var(--holo-font-ui) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--holo-accent) !important;
+}
+
+:root[data-holo] #pane-side [data-testid^="list-item-"] * {
+  border-radius: 0 !important;
+}
+
+/* avatares continuam redondos (fotos das pessoas) */
+:root[data-holo] #pane-side [data-testid^="list-item-"] img {
+  border-radius: 50% !important;
+}
+
+:root[data-holo] [data-testid="cell-frame-title"] {
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-weight: 600 !important;
+  color: var(--holo-accent) !important;
+}
+
+:root[data-holo] [data-testid="cell-frame-secondary"] {
+  color: var(--holo-text-dim) !important;
+}
+
+:root[data-holo] [data-testid="chat-list-timestamp"] {
+  font-family: var(--holo-font-mono) !important;
+  font-size: 12px !important;
+}
+
+/* conversa aberta: barra vermelha à esquerda e fundo um pouco mais claro */
+:root[data-holo] #pane-side [aria-selected="true"] {
+  background: var(--holo-tint-2) !important;
+  box-shadow: inset 3px 0 0 var(--holo-line) !important;
+}
+
+:root[data-holo] #pane-side [aria-selected="false"]:hover {
+  background: var(--holo-tint-1) !important;
+}
+
+/* ---------- C3: badge de não lidas ---------- */
+:root[data-holo] [data-testid="icon-unread-count"] {
+  background: var(--holo-warn) !important;
+  color: #0b0d10 !important;
+  border-radius: 0 !important;
+  font-family: var(--holo-font-mono) !important;
+  font-weight: 400 !important;
+  box-shadow: 0 0 6px rgb(240 214 74 / .4);
+}
+
+/* ---------- C4: busca ---------- */
+:root[data-holo] [data-testid="chat-list-search-container"] * {
+  border-radius: 0 !important;
+}
+
+:root[data-holo] [data-testid="chat-list-search-container"] div:has(> div > input) {
+  background: var(--holo-bg-panel) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line-dim);
+}
+
+:root[data-holo] [data-testid="chat-list-search-container"] div:has(> div > input:focus) {
+  box-shadow: inset 0 0 0 1px var(--holo-accent), var(--holo-glow);
+}
+
+:root[data-holo] [data-testid="chat-list-search-container"] input {
+  caret-color: var(--holo-accent);
+}
+
+:root[data-holo] [data-testid="chat-list-search-container"] input::placeholder {
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ---------- C4: filtros (Tudo, Não lidas, Favoritas, Grupos) ---------- */
+:root[data-holo] [data-testid="filter-button"] button {
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
+  color: var(--holo-text-dim) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600 !important;
+}
+
+:root[data-holo] [data-testid="filter-button"] button[aria-pressed="true"] {
+  background: var(--holo-tint-2) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-accent) !important;
+  color: var(--holo-accent) !important;
+}
+
+/* botão "+" ao lado dos filtros e o "nova conversa" do topo */
+:root[data-holo] #side header button,
+:root[data-holo] [data-testid="chat_list_filters_row"] button {
+  border-radius: 0 !important;
+}

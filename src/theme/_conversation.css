@@ -1,0 +1,195 @@
+/*
+ * Conversa: fundo, cabeçalho com breadcrumb, balões e metadados
+ * (spec §7: C1, C5–C13, C20 — F4.2 a F4.5, F4.9).
+ *
+ * === SELECTORS === (docs/selectors.md §3)
+ *   [data-testid^="conversation-background"]       papel de parede (doodle)
+ *   #main header[data-testid="conversation-header"]
+ *   [data-testid="conversation-info-header-chat-title"]
+ *   [data-testid="msg-container"][data-holo-dir]   marcado pelo content.js
+ *   [data-holo-bubble="in|out"]                    elemento que pinta o balão (content.js)
+ *   [data-testid="tail-in"], [data-testid="tail-out"]
+ *   [data-testid="msg-meta"], [data-testid="quoted-message"], [data-testid="author"]
+ *   [data-testid="reaction-bubble"], [data-testid="addon-bubble-container"]
+ *   [data-holo-chip="date"]                        separador de data (content.js)
+ *   [data-testid="video-content"], [data-testid="sticker-container"]
+ */
+
+/* ---------- C1: fundo da conversa ---------- */
+:root[data-holo] #main {
+  background: var(--holo-bg) !important;
+}
+
+/* troca o doodle do WhatsApp por uma vinheta avermelhada */
+:root[data-holo] [data-testid^="conversation-background"] {
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 35%, rgb(255 90 80 / .07) 100%),
+    var(--holo-bg) !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  opacity: 1 !important;
+}
+
+:root[data-holo] [data-testid^="conversation-background"] > * {
+  display: none !important;
+}
+
+/* ---------- C5: cabeçalho ---------- */
+:root[data-holo] #main header[data-testid="conversation-header"],
+:root[data-holo] #main > header {
+  background: var(--holo-bg) !important;
+  border-bottom: 1px solid var(--holo-line) !important;
+  box-shadow: 0 1px 8px rgb(255 90 80 / .18) !important;
+}
+
+:root[data-holo] [data-testid="conversation-info-header-chat-title"] {
+  font-family: var(--holo-font-ui) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--holo-accent) !important;
+}
+
+/* breadcrumb MESSAGES › (RF, spec §6.3) — só com a opção ligada */
+:root[data-holo][data-holo-opts~="breadcrumb"] [data-testid="conversation-info-header-chat-title"]::before {
+  content: "MESSAGES \203A\00a0";
+  color: var(--holo-text-dim);
+  font-weight: 600;
+}
+
+:root[data-holo] #main header button {
+  border-radius: 0 !important;
+}
+
+/* ---------- C6/C7: balões ---------- */
+/* o "rabinho" some: o canto chanfrado ocupa o lugar dele */
+:root[data-holo] [data-testid="tail-in"],
+:root[data-holo] [data-testid="tail-out"] {
+  display: none !important;
+}
+
+:root[data-holo] [data-holo-bubble] {
+  --holo-cut: 9px;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:root[data-holo] [data-holo-bubble="in"] {
+  --holo-cut-line: var(--holo-in-border);
+  --holo-cut-bg: var(--holo-in-bg);
+  --message-primary: var(--holo-in-text) !important;
+  --primary: var(--holo-in-text) !important;
+  color: var(--holo-in-text);
+}
+
+:root[data-holo] [data-holo-bubble="out"] {
+  --holo-cut-line: var(--holo-out-border);
+  --holo-cut-bg: var(--holo-out-bg);
+  --message-primary: var(--holo-out-text) !important;
+  --primary: var(--holo-out-text) !important;
+  color: var(--holo-out-text);
+}
+
+/* texto um pouco maior: a Rajdhani é mais baixa que a Roboto */
+:root[data-holo] [data-holo-bubble] [data-testid="selectable-text"],
+:root[data-holo] [data-holo-bubble] [data-testid~="selectable-text"] {
+  font-size: 15.5px !important;
+  line-height: 1.35 !important;
+}
+
+/* mídia dentro do balão: cantos retos, sem filtro nenhum */
+:root[data-holo] [data-holo-bubble] :is(img, video, [data-testid="video-content"], [data-testid="video-content"] *) {
+  border-radius: 0 !important;
+}
+
+/* ---------- C8: hora e ticks ---------- */
+:root[data-holo] [data-testid="msg-meta"] {
+  font-family: var(--holo-font-mono) !important;
+  color: var(--holo-text-dim) !important;
+}
+
+:root[data-holo] [data-testid="msg-meta"] * {
+  font-family: inherit !important;
+}
+
+/* ---------- C9: citação ---------- */
+:root[data-holo] [data-testid="quoted-message"],
+:root[data-holo] [data-testid="quoted-message"] * {
+  border-radius: 0 !important;
+}
+
+:root[data-holo] [data-testid="quoted-message"] > div {
+  background: rgb(255 90 80 / .07) !important;
+  box-shadow: inset 2px 0 0 var(--holo-line) !important;
+}
+
+/* ---------- C10: reações ---------- */
+:root[data-holo] [data-testid="reaction-bubble"] {
+  border-radius: 0 !important;
+  background: var(--holo-bg) !important;
+  box-shadow: inset 0 0 0 1px var(--holo-accent) !important;
+}
+
+:root[data-holo] [data-testid="reaction-bubble"] * {
+  border-radius: 0 !important;
+  background-color: transparent !important;
+}
+
+/* ---------- C11: separador de data ---------- */
+:root[data-holo] [data-holo-chip="date"] {
+  position: relative;
+  overflow: visible !important;
+  background: var(--holo-bg) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
+  color: var(--holo-text-dim) !important;
+  font-family: var(--holo-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+
+:root[data-holo] [data-holo-chip="date"] * {
+  font-family: inherit !important;
+}
+
+/* linhas vermelhas saindo dos dois lados do rótulo */
+:root[data-holo] [data-holo-chip="date"]::before,
+:root[data-holo] [data-holo-chip="date"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 30vw;
+  height: 1px;
+  pointer-events: none;
+}
+
+:root[data-holo] [data-holo-chip="date"]::before {
+  right: 100%;
+  background: linear-gradient(to left, var(--holo-line-dim), transparent);
+}
+
+:root[data-holo] [data-holo-chip="date"]::after {
+  left: 100%;
+  background: linear-gradient(to right, var(--holo-line-dim), transparent);
+}
+
+/* o painel de mensagens não pode rolar para o lado por causa das linhas */
+:root[data-holo] [data-testid="conversation-panel-messages"] {
+  overflow-x: hidden !important;
+}
+
+/* ---------- C12: avisos do sistema (criptografia etc.) ---------- */
+:root[data-holo] [data-testid="conversation-panel-messages"] button:not([role="row"] *) {
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px rgb(240 214 74 / .25) !important;
+  color: #b9a43a !important;
+  font-family: var(--holo-font-mono) !important;
+}
+
+/* ---------- C13: remetente em grupos ---------- */
+:root[data-holo] [data-testid="author"] {
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 700 !important;
+}
