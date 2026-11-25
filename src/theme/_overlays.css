@@ -52,13 +52,31 @@
   letter-spacing: .06em;
 }
 
-/* ---------- tooltips ---------- */
+/* ---------- tooltips ----------
+ * O WhatsApp pinta o balão com --tooltip-background (também a setinha, em SVG)
+ * e o texto com as cores "inversas" do WDS. No tema o inverso é texto escuro
+ * (par de --WDS-surface-inverse claro), então dentro do tooltip o par é
+ * desfeito: fundo do tema e texto claro — senão ficava preto no escuro. */
+:root[data-holo],
+:root[data-holo] body.dark,
+:root[data-holo] body.light {
+  --tooltip-background: var(--holo-bg-elev) !important;
+  --tooltip-corner-radius: 0 !important;
+  --tooltip-box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
+}
+
 :root[data-holo] [role="tooltip"] {
+  --WDS-content-inverse: var(--holo-text) !important;
+  --WDS-surface-inverse: var(--holo-bg-elev) !important;
   background: var(--holo-bg-elev) !important;
   color: var(--holo-text) !important;
   border-radius: 0 !important;
   box-shadow: inset 0 0 0 1px var(--holo-line-dim) !important;
   font-family: var(--holo-font-mono) !important;
+}
+
+:root[data-holo] [role="tooltip"] * {
+  color: var(--holo-text) !important;
 }
 
 /* ---------- C19: painéis laterais (dados do contato, configurações…) ----------
