@@ -85,6 +85,11 @@ ficam de fora (`assets/sounds/NOTICE.md`) e as fontes são OFL. O arquivo
 >   calls it mutes the call's audio element only while the "calling" screen
 >   is up without the call timer (max 70 s), so the extension's ringback can
 >   play instead. It never reads message text, names or numbers.
+> - The same script subclasses `window.Notification` and wraps
+>   `ServiceWorkerRegistration.prototype.showNotification` only to add
+>   `silent: true` when the user picked the game sounds or mute, so the OS
+>   chime does not play on top. Title, body and icon pass through untouched
+>   and are never read.
 > - `src/content/sound.js` plays the bundled MP3s with Web Audio; the
 >   background page is a fallback when the tab has no autoplay permission.
 > - Storage: only the user's settings in `storage.local`. No network requests
