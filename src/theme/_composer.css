@@ -56,13 +56,13 @@
 }
 
 /* enviar em amarelo */
-:root[data-holo] #main footer button:is([aria-label="Enviar"], [aria-label*="send" i]) {
+:root[data-holo] #main footer button:is([data-holo-send], [aria-label="Enviar"], [aria-label*="send" i]) {
   color: var(--holo-warn) !important;
   background: transparent !important;
   box-shadow: inset 0 0 0 1px var(--holo-warn) !important;
 }
 
-:root[data-holo] #main footer button:is([aria-label="Enviar"], [aria-label*="send" i]) * {
+:root[data-holo] #main footer button:is([data-holo-send], [aria-label="Enviar"], [aria-label*="send" i]) * {
   background: transparent !important;
   color: inherit !important;
 }

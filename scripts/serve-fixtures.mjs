@@ -2,7 +2,7 @@
 //
 //   node scripts/serve-fixtures.mjs [porta]      (padrão 5177, só 127.0.0.1)
 //
-// Serve SÓ src/, assets/ e tests/fixtures/ — nunca a raiz do projeto, onde
+// Serve SÓ src/, assets/, _locales/ e tests/fixtures/ — nunca a raiz do projeto, onde
 // ficam .wa-ff-profile/ (login do WhatsApp) e docs/recon/raw/.
 //
 // /tests/fixtures/wa-snapshot.html?holo=1[&palette=teal][&buttons=playstation][&sound=silent|whatsapp]
@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.argv[2]) || 5177;
-const allowed = ['src', 'assets', path.join('tests', 'fixtures')].map((d) => path.join(root, d) + path.sep);
+const allowed = ['src', 'assets', '_locales', path.join('tests', 'fixtures')].map((d) => path.join(root, d) + path.sep);
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8', '.mp3': 'audio/mpeg' };
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
@@ -62,6 +62,23 @@ const storageStub = (defaults) => `<script>
 })();
 </script>`;
 
+// browser.i18n de mentira: ?lang=en|pt_BR|de… faz o papel da língua do
+// Firefox (padrão pt_BR). Mesma regra do Firefox: a língua pedida e, sem
+// tradução, a default_locale do manifest; chave ausente devolve "".
+const readLocale = (l) => {
+  const f = path.join(root, '_locales', l, 'messages.json');
+  return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null;
+};
+const i18nStub = (lang) => {
+  const l = /^[A-Za-z_]{2,10}$/.test(lang || '') ? lang : 'pt_BR';
+  const messages = readLocale(l) || readLocale(manifest.default_locale) || {};
+  const flat = Object.fromEntries(Object.entries(messages).map(([k, v]) => [k, v.message]));
+  return `<script>
+window.browser = window.browser || {};
+window.browser.i18n = { getMessage: (k) => (${JSON.stringify(flat)})[k] || '', getUILanguage: () => ${JSON.stringify(l.replace('_', '-'))} };
+</script>`;
+};
+
 // o "background" entrega os bytes dos sons e registra o plano reserva
 const stub = (palette, buttons, sound) => storageStub({
   'holo:config': { enabled: true, palette, buttonLayout: buttons, sound: { mode: sound, volume: 0.8 } }
@@ -72,10 +89,10 @@ window.browser.runtime = { sendMessage: async (m) => {
 } };
 </script>`;
 
-function inject(html, palette, buttons, sound) {
+function inject(html, palette, buttons, sound, lang) {
   const links = themeCss.map((f) => `<link rel="stylesheet" href="/${f}">`).join('\n')
     + '\n' + mainJs.map((f) => `<script src="/${f}"></script>`).join('\n')
-    + '\n' + stub(palette, buttons, sound) + '\n' + themeJs.map((f) => `<script src="/${f}"></script>`).join('\n');
+    + '\n' + stub(palette, buttons, sound) + i18nStub(lang) + '\n' + themeJs.map((f) => `<script src="/${f}"></script>`).join('\n');
   const attrs = ` data-holo="" data-holo-palette="${palette}" data-holo-fx="scanlines glow glitch"`;
   return html.replace(/<html([^>]*)>/i, `<html$1${attrs}>`).replace(/<\/head>/i, `${links}\n</head>`);
 }
@@ -91,14 +108,14 @@ http.createServer((req, res) => {
   let body = fs.readFileSync(file);
   if (ext === '.html' && url.searchParams.has('stub')) {
     // /src/popup/popup.html?stub=1 → storage compartilhado (acima) para usar o popup fora do Firefox
-    body = body.toString('utf8').replace('<script', storageStub({}) + `<script>window.browser.runtime = { getURL: (p) => '/' + p };</script>
+    body = body.toString('utf8').replace('<script', storageStub({}) + i18nStub(url.searchParams.get('lang')) + `<script>window.browser.runtime = { getURL: (p) => '/' + p };</script>
 <script`);
   }
   if (ext === '.html' && url.searchParams.has('holo')) {
     const palette = url.searchParams.get('palette') === 'teal' ? 'teal' : 'yellow';
     const buttons = url.searchParams.get('buttons') === 'playstation' ? 'playstation' : 'xbox';
     const sound = ['silent', 'whatsapp'].includes(url.searchParams.get('sound')) ? url.searchParams.get('sound') : 'cyberpunk';
-    body = inject(body.toString('utf8'), palette, buttons, sound);
+    body = inject(body.toString('utf8'), palette, buttons, sound, url.searchParams.get('lang'));
   }
   res.writeHead(200, { 'content-type': types[ext] || 'application/octet-stream', 'cache-control': 'no-store' }).end(body);
 }).listen(port, '127.0.0.1', () => console.log(`fixtures em http://127.0.0.1:${port}/tests/fixtures/`));

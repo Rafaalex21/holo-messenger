@@ -9,7 +9,10 @@
 //  4. falta arquivo que o manifest, o popup, o CSS ou o JS pedem (som, fonte, ícone);
 //  5. o diagnóstico de som (tirado do produto em 25/11/2026) volta sem querer;
 //  6. manifest sem o id do Gecko ou sem a declaração de dados que a AMO exige,
-//     ou versão diferente da do package.json.
+//     ou versão diferente da do package.json;
+//  7. tradução incompleta: um idioma sem alguma chave dos outros, chave
+//     pedida pelo manifest (__MSG_x__), pelo popup (data-i18n) ou pelo JS
+//     (getMessage('x')) que não existe, ou sem a default_locale.
 //
 // Uso: npm run package  (gera o zip com web-ext build e roda isto)
 import { execFileSync } from 'node:child_process';
@@ -35,7 +38,7 @@ const read = (f) => readFileSync(join(out, f), 'utf8');
 const has = new Set(files);
 
 // 1-3: só entra o que é da extensão
-const ALLOWED = /^(manifest\.json|LICENSE|src\/(background|content|popup|shared|theme)\/[^/]+\.(js|css|html)|assets\/(fonts\/[^/]+\.(woff2|txt)|icons\/[^/]+\.svg|sounds\/(message|call-outgoing|call-incoming)\.mp3|sounds\/NOTICE\.md))$/;
+const ALLOWED = /^(manifest\.json|LICENSE|src\/(background|content|popup|shared|theme)\/[^/]+\.(js|css|html)|assets\/(fonts\/[^/]+\.(woff2|txt)|icons\/[^/]+\.svg|sounds\/(message|call-outgoing|call-incoming)\.mp3|sounds\/NOTICE\.md)|_locales\/[A-Za-z_]+\/messages\.json)$/;
 for (const f of files) if (!ALLOWED.test(f)) fail(`não devia estar no pacote: ${f}`);
 
 // 4: tudo o que é pedido existe
@@ -73,6 +76,21 @@ const gecko = manifest.browser_specific_settings?.gecko || {};
 if (!gecko.id) fail('manifest sem browser_specific_settings.gecko.id');
 if (!gecko.data_collection_permissions?.required?.length) fail('manifest sem data_collection_permissions');
 if (manifest.version !== pkg.version) fail(`versão do manifest (${manifest.version}) ≠ package.json (${pkg.version})`);
+
+// 7: traduções completas
+const locales = Object.fromEntries(files.filter((f) => /^_locales\/[^/]+\/messages\.json$/.test(f))
+  .map((f) => [f.split('/')[1], Object.keys(JSON.parse(read(f)))]));
+if (!manifest.default_locale || !locales[manifest.default_locale]) fail(`default_locale "${manifest.default_locale}" sem _locales/`);
+const allKeys = new Set(Object.values(locales).flat());
+for (const [l, keys] of Object.entries(locales)) {
+  for (const k of allKeys) if (!keys.includes(k)) fail(`_locales/${l} sem a chave "${k}"`);
+}
+const wanted = new Set([
+  ...JSON.stringify(manifest).matchAll(/__MSG_(\w+)__/g),
+  ...files.filter((f) => f.endsWith('.html')).flatMap((f) => [...read(f).matchAll(/data-i18n(?:-aria)?="(\w+)"/g)]),
+  ...files.filter((f) => f.endsWith('.js')).flatMap((f) => [...read(f).matchAll(/getMessage\('(\w+)'/g), ...read(f).matchAll(/msg\('(\w+)'/g)])
+].map((m) => m[1]));
+for (const k of wanted) if (!allKeys.has(k)) fail(`chave de tradução "${k}" não existe em _locales/`);
 
 rmSync(out, { recursive: true, force: true });
 if (problems.length) {

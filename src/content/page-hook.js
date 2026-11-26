@@ -33,6 +33,8 @@
   const SEL = globalThis.HOLO_SEL;
   delete globalThis.HOLO_SEL;
   delete globalThis.HOLO_SEL_FIND;
+  delete globalThis.HOLO_SEL_ICON;
+  delete globalThis.HOLO_SEL_BY_ICON;
   const WA_SOUND = /^https:\/\/static\.whatsapp\.net\/rsrc\.php\/.+\.(mp3|ogg|m4a)$/;
 
   // Arquivos conhecidos (docs/sound-investigation.md). O hash muda em deploys

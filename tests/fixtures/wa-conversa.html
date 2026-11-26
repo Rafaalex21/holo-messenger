@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — cabeçalho, menu e campo da conversa</title>
+  <!--
+    Código nosso (pode ir para o repositório). Cabeçalho, menu ⋮ e campo de
+    digitação de uma conversa, com os botões que o rodapé CALL / CLOSE usa.
+    Estrutura medida no WA real em 2026-11-26 (só rótulos, nomes de ícone e
+    textos do menu do próprio WhatsApp): cada botão tem <svg><title> com o
+    nome interno do ícone (ic-call, ic-more-vert, ic-cancel…), igual em
+    qualquer idioma; o ⋮ tem aria-haspopup="menu". O nome do ícone de enviar
+    (wds-ic-send-filled) não foi medido: o tema só procura "send" no nome.
+      ?wa-lang=pt|en|it  idioma da interface do WhatsApp (padrão pt)
+      ?esc=0             Esc não fecha a conversa (força o caminho do menu)
+      ?icons=0           sem os nomes de ícone (WhatsApp mudou os ícones)
+    O que a página fez fica em window.__wa: ligações e itens de menu clicados.
+    Abrir com ?holo=1 (scripts/serve-fixtures.mjs).
+  -->
+  <style>
+    body { margin: 0; font: 15px system-ui, sans-serif; background: #111; color: #ddd; }
+    #main { position: absolute; inset: 0 0 0 0; display: flex; flex-direction: column; }
+    #main header { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #202c33; }
+    #main header .title { flex: 1; }
+    [data-testid="conversation-panel-messages"] { flex: 1; }
+    #main footer { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #202c33; }
+    #main footer [contenteditable] { flex: 1; min-height: 22px; padding: 6px; background: #2a3942; }
+    button { background: none; border: 0; color: #aebac1; padding: 6px; }
+    svg { width: 24px; height: 24px; display: block; }
+    #menu { position: absolute; right: 12px; top: 50px; z-index: 10; background: #233138; }
+    #menu ul { margin: 0; padding: 8px 0; list-style: none; }
+    #menu li { display: flex; gap: 8px; padding: 8px 16px; cursor: pointer; }
+    #menu svg { width: 20px; height: 20px; }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <header data-testid="conversation-header">
+      <span class="title">lorem ipsum</span>
+    </header>
+    <div data-testid="conversation-panel-messages"></div>
+    <footer></footer>
+  </div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const L = {
+      pt: { info: 'Informações de contato', video: 'Ligação de vídeo', voice: 'Ligação de voz', search: 'Pesquisar', more: 'Mais opções',
+            attach: 'Anexar', emoji: 'Emojis, GIFs, figurinhas', mic: 'Mensagem de voz', send: 'Enviar', box: 'Digite uma mensagem',
+            items: ['Dados do contato', 'Selecionar mensagens', 'Fechar conversa', 'Limpar conversa', 'Apagar conversa'] },
+      en: { info: 'Contact info', video: 'Video call', voice: 'Voice call', search: 'Search', more: 'More options',
+            attach: 'Attach', emoji: 'Emojis, GIFs, stickers', mic: 'Voice message', send: 'Send', box: 'Type a message',
+            items: ['Contact info', 'Select messages', 'Close chat', 'Clear chat', 'Delete chat'] },
+      // nenhum rótulo daqui casa com as reservas em português/inglês
+      it: { info: 'Info contatto', video: 'Videochiamata', voice: 'Chiamata vocale', search: 'Cerca', more: 'Altre opzioni',
+            attach: 'Allega', emoji: 'Emoji, GIF, adesivi', mic: 'Messaggio vocale', send: 'Invia', box: 'Scrivi un messaggio',
+            items: ['Info contatto', 'Seleziona messaggi', 'Chiudi chat', 'Svuota chat', 'Elimina chat'] }
+    }[q.get('wa-lang') || 'pt'];
+    const T = L;
+    const icons = q.get('icons') !== '0';
+    const ITEM_ICONS = ['ic-info', 'ic-check-box', 'ic-cancel', 'ic-do-not-disturb-on', 'ic-delete'];
+    const ITEM_IDS = ['info', 'select', 'close', 'clear', 'delete'];
+    window.__wa = { calls: [], menu: [] };
+
+    const svg = (name) => `<span aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor">${icons ? `<title>${name}</title>` : ''}<path d="M5 5h14v14H5z"/></svg></span>`;
+    const button = (label, icon, extra = '') => `<button type="button" data-tab="6" aria-label="${label}" ${extra}>${svg(icon)}</button>`;
+
+    const header = document.querySelector('#main header');
+    header.insertAdjacentHTML('beforeend',
+      button(T.info, '', 'data-testid="conversation-info-header-button"') +
+      button(T.video, 'ic-videocam', 'id="video"') +
+      button(T.voice, 'ic-call', 'id="voice"') +
+      button(T.search, 'ic-search') +
+      button(T.more, 'ic-more-vert', 'id="more" aria-haspopup="menu" aria-expanded="false"'));
+    document.getElementById('video').onclick = () => window.__wa.calls.push('video');
+    document.getElementById('voice').onclick = () => window.__wa.calls.push('voice');
+
+    const closeChat = () => document.getElementById('main').remove();
+    document.getElementById('more').onclick = () => {
+      if (document.getElementById('menu')) return;
+      const menu = document.createElement('div');
+      menu.id = 'menu';
+      menu.setAttribute('role', 'application');
+      menu.innerHTML = '<ul>' + T.items.map((t, i) => `<li role="menuitem" data-id="${ITEM_IDS[i]}">${svg(ITEM_ICONS[i])}<span>${t}</span></li>`).join('') + '</ul>';
+      menu.onclick = (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        window.__wa.menu.push(li.dataset.id);
+        menu.remove();
+        if (li.dataset.id === 'close') closeChat();
+      };
+      document.body.append(menu);
+    };
+
+    // Esc fecha a conversa (atalho do WhatsApp), a não ser com ?esc=0
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && q.get('esc') !== '0' && document.getElementById('main')) closeChat();
+    });
+
+    // campo: microfone com o campo vazio, enviar quando tem texto
+    const footer = document.querySelector('#main footer');
+    footer.innerHTML = button(T.attach, 'ic-attach-file', 'aria-haspopup="menu"') + button(T.emoji, 'wds-ic-sticker-smiley') +
+      `<div contenteditable="true" role="textbox" data-testid="conversation-compose-box-input" aria-label="${T.box}"></div>` +
+      `<span id="action">${button(T.mic, 'ic-mic', 'id="mic"')}</span>`;
+    const box = footer.querySelector('[contenteditable]');
+    box.addEventListener('input', () => {
+      const typed = box.textContent.trim() !== '';
+      const action = document.getElementById('action');
+      if (typed && !document.getElementById('send')) action.innerHTML = button(T.send, 'wds-ic-send-filled', 'id="send"');
+      if (!typed && !document.getElementById('mic')) action.innerHTML = button(T.mic, 'ic-mic', 'id="mic"');
+    });
+  </script>
+</body>
+</html>

@@ -10,6 +10,8 @@
     Popup do botão da extensão (spec §9.2): liga/desliga, paleta, efeitos,
     layout dos botões do rodapé e som. Cada mudança vai para
     storage.local; o content script aplica ao vivo, sem recarregar.
+    Textos: data-i18n / data-i18n-aria apontam para _locales/*/messages.json
+    (popup.js troca ao abrir); o português aqui é só a reserva.
   -->
   <header class="head">
     <span class="brand">HOLO-MESSENGER</span>
@@ -17,38 +19,38 @@
   </header>
 
   <label class="row">
-    <span class="label">TEMA</span>
+    <span class="label" data-i18n="theme">TEMA</span>
     <input type="checkbox" id="enabled" class="switch">
   </label>
 
   <fieldset class="group">
-    <legend class="label">PALETA</legend>
+    <legend class="label" data-i18n="palette">PALETA</legend>
     <div class="pair">
       <!-- cor dos balões enviados (os recebidos são sempre ciano) -->
       <label class="opt">
         <input type="radio" name="palette" value="yellow">
-        <span class="name">AMARELO</span>
+        <span class="name" data-i18n="yellow">AMARELO</span>
         <span class="swatch" style="--sw-line: #f0d64a; --sw-fill: #15140a" aria-hidden="true"></span>
       </label>
       <label class="opt">
         <input type="radio" name="palette" value="teal">
-        <span class="name">VERDE-ÁGUA</span>
+        <span class="name" data-i18n="teal">VERDE-ÁGUA</span>
         <span class="swatch" style="--sw-line: #3fb8a8; --sw-fill: #12524c" aria-hidden="true"></span>
       </label>
     </div>
   </fieldset>
 
   <fieldset class="group fx">
-    <legend class="label">EFEITOS</legend>
+    <legend class="label" data-i18n="effects">EFEITOS</legend>
     <div class="chips">
-      <label class="chip"><input type="checkbox" name="fx" value="scanlines"><span>SCANLINES</span></label>
-      <label class="chip"><input type="checkbox" name="fx" value="glow"><span>BRILHO</span></label>
-      <label class="chip"><input type="checkbox" name="fx" value="glitch"><span>GLITCH</span></label>
+      <label class="chip"><input type="checkbox" name="fx" value="scanlines"><span data-i18n="scanlines">SCANLINES</span></label>
+      <label class="chip"><input type="checkbox" name="fx" value="glow"><span data-i18n="glow">BRILHO</span></label>
+      <label class="chip"><input type="checkbox" name="fx" value="glitch"><span data-i18n="glitch">GLITCH</span></label>
     </div>
   </fieldset>
 
   <fieldset class="group">
-    <legend class="label">BOTÕES DO RODAPÉ</legend>
+    <legend class="label" data-i18n="footerButtons">BOTÕES DO RODAPÉ</legend>
 
     <!-- mesmos desenhos do content.js (GLYPHS): anel + letra ou forma -->
     <label class="opt">
@@ -71,24 +73,24 @@
   </fieldset>
 
   <fieldset class="group sound">
-    <legend class="label">SOM</legend>
+    <legend class="label" data-i18n="sound">SOM</legend>
 
-    <div class="seg" role="radiogroup" aria-label="Som">
-      <label><input type="radio" name="soundMode" value="cyberpunk"><span>CYBERPUNK</span></label>
-      <label><input type="radio" name="soundMode" value="whatsapp"><span>WHATSAPP</span></label>
-      <label><input type="radio" name="soundMode" value="silent"><span>MUDO</span></label>
+    <div class="seg" role="radiogroup" aria-label="Som" data-i18n-aria="soundGroup">
+      <label><input type="radio" name="soundMode" value="cyberpunk"><span data-i18n="soundCyberpunk">CYBERPUNK</span></label>
+      <label><input type="radio" name="soundMode" value="whatsapp"><span data-i18n="soundWhatsapp">WHATSAPP</span></label>
+      <label><input type="radio" name="soundMode" value="silent"><span data-i18n="soundMute">MUDO</span></label>
     </div>
 
     <label class="row vol">
-      <span class="label">VOLUME</span>
+      <span class="label" data-i18n="volume">VOLUME</span>
       <input type="range" id="volume" min="0" max="100" step="5">
       <output id="volumeOut" class="mono">80</output>
     </label>
 
     <div class="tests">
-      <button type="button" class="test" data-kind="message">▶ MENSAGEM</button>
-      <button type="button" class="test" data-kind="call-outgoing">▶ LIGANDO</button>
-      <button type="button" class="test" data-kind="call-incoming">▶ RECEBENDO</button>
+      <button type="button" class="test" data-kind="message" data-i18n="testMessage">▶ MENSAGEM</button>
+      <button type="button" class="test" data-kind="call-outgoing" data-i18n="testOutgoing">▶ LIGANDO</button>
+      <button type="button" class="test" data-kind="call-incoming" data-i18n="testIncoming">▶ RECEBENDO</button>
     </div>
   </fieldset>
 

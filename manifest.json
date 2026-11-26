@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Holo-Messenger: tema para WhatsApp Web",
+  "name": "__MSG_extName__",
   "short_name": "Holo-Messenger",
-  "version": "1.0.0",
-  "description": "Tema inspirado em Cyberpunk 2077 para o WhatsApp Web: balões chanfrados, cores neon e sons do jogo. Projeto de fã, não oficial.",
+  "version": "1.0.1",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
   "browser_specific_settings": {
     "gecko": {
       "id": "holo-messenger@local",

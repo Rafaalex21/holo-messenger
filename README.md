@@ -15,7 +15,9 @@ WhatsApp/Meta.
 - **A partir do código** (para testar mudanças): veja [Desenvolver](#desenvolver).
 
 Precisa do Firefox 140 ou mais novo, no computador. Funciona só em
-`web.whatsapp.com`.
+`web.whatsapp.com`, com o WhatsApp em qualquer idioma. O popup sai em
+português ou inglês, conforme o idioma do Firefox (outros idiomas caem no
+inglês).
 
 ## Usar
 
@@ -54,6 +56,11 @@ estranho:
 3. Para descobrir o que mudou, `npm run recon` abre um Firefox de inspeção
    (veja `docs/selectors.md` e `docs/sound-investigation.md`).
 4. Ajuste o seletor, rode `npm run lint` e `npm test`.
+
+Os botões do WhatsApp que o rodapé CALL / CLOSE usa (ligação de voz, menu ⋮,
+"Fechar conversa") e o botão enviar são achados pelo nome interno do ícone
+(`ic-call`, `ic-cancel`…), que não muda com o idioma. Se o WhatsApp renomear
+os ícones, os nomes ficam em `src/shared/selectors.js`.
 
 Se o som do jogo parar de tocar, provavelmente o WhatsApp trocou o nome do
 arquivo de som: os nomes ficam em `src/content/page-hook.js` (`SOUNDS`) e a

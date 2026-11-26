@@ -6,6 +6,16 @@
   const HOLO = globalThis.HOLO;
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => [...document.querySelectorAll(sel)];
+
+  // textos no idioma do Firefox (_locales/; sem tradução, o Firefox usa o
+  // inglês). Chave vazia ou ausente: fica o português do HTML.
+  const msg = (key) => {
+    try { return (globalThis.browser && browser.i18n && browser.i18n.getMessage(key)) || ''; } catch (e) { return ''; }
+  };
+  for (const el of $$('[data-i18n]')) { const t = msg(el.dataset.i18n); if (t) el.textContent = t; }
+  for (const el of $$('[data-i18n-aria]')) { const t = msg(el.dataset.i18nAria); if (t) el.setAttribute('aria-label', t); }
+  if (msg('lang')) document.documentElement.lang = msg('lang');
+
   const enabled = $('#enabled');
   const layouts = $$('input[name="buttonLayout"]');
   const palettes = $$('input[name="palette"]');

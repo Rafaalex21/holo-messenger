@@ -27,4 +27,6 @@ Extensão Firefox (MV3) que deixa o WhatsApp Web com cara de Cyberpunk 2077. Esp
 - Perfis do Firefox: `.wa-ff-profile/` e `.recon-profile/`.
 - Exceção decidida pelo dono: os três sons do jogo em `assets/sounds/` vão no repo e na AMO (spec §8.4).
 
-O código da extensão nunca lê texto de conversa, nomes ou números. Só lê cores, atributos, `data-testid` e os dígitos do contador de não lidas.
+O código da extensão nunca lê texto de conversa, nomes ou números. Só lê cores, atributos, `data-testid`, os dígitos do contador de não lidas e o nome interno dos ícones dos botões do WhatsApp (`<svg><title>`, ex.: `ic-call`).
+
+Textos da interface ficam em `_locales/pt_BR` e `_locales/en` (`default_locale` en). Nos testes, `?lang=` faz o papel do idioma do Firefox; `tests/fixtures/wa-conversa.html?wa-lang=pt|en|it` é o WhatsApp em outro idioma.

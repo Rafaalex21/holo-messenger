@@ -21,6 +21,8 @@
   const HOLO = globalThis.HOLO;
   const SEL = globalThis.HOLO_SEL;
   const find = globalThis.HOLO_SEL_FIND;
+  const byIcon = globalThis.HOLO_SEL_BY_ICON;
+  const iconOf = globalThis.HOLO_SEL_ICON;
   const root = document.documentElement;
   let current = null;
 
@@ -219,7 +221,7 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   const startCall = () => {
-    const btn = find(SEL.voiceCall);
+    const btn = byIcon(SEL.headerButtons, SEL.voiceCallIcon) || find(SEL.voiceCall);
     if (btn) btn.click();
   };
 
@@ -239,7 +241,8 @@
     menuBtn.click();
     for (let i = 0; i < 10; i++) {
       await wait(60);
-      const item = [...document.querySelectorAll(SEL.menuItems)].find((el) => SEL.closeChatText.test(el.textContent || ''));
+      const item = byIcon(SEL.menuItems, SEL.closeChatIcon)
+        || [...document.querySelectorAll(SEL.menuItems)].find((el) => SEL.closeChatText.test(el.textContent || ''));
       if (item) { item.click(); return; }
     }
   };
@@ -295,7 +298,14 @@
       b.addEventListener('click', (e) => { e.preventDefault(); run(); });
       return b;
     };
-    hints.append(hint('call', 'CALL', 'Ligar (chamada de voz)', startCall), hint('close', 'CLOSE', 'Fechar conversa', closeChat));
+    // descrição no idioma do Firefox (_locales/); o rótulo CALL / CLOSE é do jogo
+    const msg = (key, fallback) => {
+      try { return browser.i18n.getMessage(key) || fallback; } catch (e) { return fallback; }
+    };
+    hints.append(
+      hint('call', 'CALL', msg('callAria', 'Ligar (chamada de voz)'), startCall),
+      hint('close', 'CLOSE', msg('closeAria', 'Fechar conversa'), closeChat)
+    );
     el.append(rule, hints);
     return el;
   };
@@ -308,6 +318,15 @@
     if (existing && existing.previousElementSibling === footer && existing.getAttribute('data-holo-layout') === layout) return;
     if (existing) existing.remove();
     footer.after(buildFooter(layout));
+  };
+
+  // botão enviar marcado pelo ícone (o CSS pinta de amarelo): o rótulo muda
+  // com o idioma, o ícone não
+  const markSend = (main) => {
+    for (const b of main.querySelectorAll(SEL.footerButtons)) {
+      const send = SEL.sendIcon.test(iconOf(b));
+      if (send !== b.hasAttribute('data-holo-send')) b.toggleAttribute('data-holo-send', send);
+    }
   };
 
   // ------------------------------------------------------- agendamento
@@ -326,6 +345,7 @@
     const main = find(SEL.main);
     ensureFooter();
     if (!main) { added.clear(); fullScan = false; return; }
+    markSend(main);
     const tk = tokens();
     if (!tk.in) return; // CSS do tema ainda não aplicado
     const panel = find(SEL.messagesPanel, main);

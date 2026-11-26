@@ -57,6 +57,45 @@ de mentira dos testes, sem nenhuma conversa real.
 > Projeto de fã sem fins comerciais. Não é afiliado à CD PROJEKT RED nem ao
 > WhatsApp/Meta. Cyberpunk 2077 e os sons do jogo são © CD PROJEKT RED.
 
+### Em inglês
+
+A extensão tem popup em português e inglês (`_locales/`; qualquer outro
+idioma do Firefox cai no inglês). Na AMO, a ficha em inglês entra em **Edit
+Product Page**, trocando o idioma no seletor do topo do formulário para
+English (US).
+
+**Name:** Holo-Messenger: Cyberpunk theme for WhatsApp Web
+
+**Summary:**
+
+> Makes WhatsApp Web look like the phone in Cyberpunk 2077: chamfered
+> bubbles with neon frames, scanlines, glitch on new messages and the game's
+> sounds for messages and calls. Unofficial fan project.
+
+**Description:**
+
+> A WhatsApp Web theme inspired by the messaging app on the phone in
+> Cyberpunk 2077.
+>
+> - Chamfered bubbles with a thin frame; received in cyan, sent in yellow or
+>   teal.
+> - Game-style fonts, scanlines, glow and a quick glitch when a new message
+>   arrives (each effect can be turned on or off in the popup).
+> - Footer with controller buttons: Microsoft (Y / B) or Sony (△ / ○).
+> - The game's sounds for incoming messages, incoming calls and "calling"
+>   when you call someone. The popup can switch back to WhatsApp's sounds or
+>   mute everything, and change the volume.
+> - Everything applies instantly, no page reload.
+> - Works with WhatsApp in any language; the popup is in English and
+>   Brazilian Portuguese.
+>
+> Privacy: the extension does not read your messages, names or numbers,
+> sends nothing anywhere and has no server. It only stores your choices
+> (palette, effects, sound) in Firefox itself.
+>
+> Unofficial, non-commercial fan project. Not affiliated with CD PROJEKT RED
+> or WhatsApp/Meta. Cyberpunk 2077 and the game's sounds are © CD PROJEKT RED.
+
 **Categoria:** Aparência
 
 **Tags:** whatsapp, tema, cyberpunk, dark mode
@@ -90,6 +129,11 @@ ficam de fora (`assets/sounds/NOTICE.md`) e as fontes são OFL. O arquivo
 >   calls it mutes the call's audio element only while the "calling" screen
 >   is up without the call timer (max 70 s), so the extension's ringback can
 >   play instead. It never reads message text, names or numbers.
+> - `src/content/content.js` finds WhatsApp's own buttons (voice call, the
+>   header menu, "Close chat", send) by the icon name WhatsApp puts in each
+>   button's `<svg><title>` (e.g. `ic-call`), so it works in any UI
+>   language. It only clicks them when the user presses the extension's
+>   CALL / CLOSE buttons.
 > - The same script subclasses `window.Notification` and wraps
 >   `ServiceWorkerRegistration.prototype.showNotification` only to add
 >   `silent: true` when the user picked the game sounds or mute, so the OS
