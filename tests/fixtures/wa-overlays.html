@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp de mentira — menus e painéis</title>
+  <!--
+    Código nosso (pode ir para o repositório). Três sobreposições abertas ao
+    mesmo tempo, com a estrutura que o tema encontra no WhatsApp:
+    - painel de emojis/figurinhas: #expressions-panel-container >
+      [role=application] > ul[data-testid=expressions-panel] e, dentro, um
+      bloco do tamanho do painel com fundo opaco (medido no WA real em
+      2026-11-26: só tag, role, data-testid, tamanho e cores);
+    - menu de contexto: [role=application] > ul > li, com o item em foco pintado
+      de ponta a ponta;
+    - janela: [role=dialog] com um cabeçalho de fundo opaco encostado na borda.
+    Abrir com ?holo=1 (scripts/serve-fixtures.mjs).
+  -->
+  <style>
+    body { margin: 0; font: 15px system-ui, sans-serif; background: #111; color: #ddd; }
+    .pos { position: absolute; }
+    #picker { left: 40px; top: 40px; }
+    #picker [role="application"] { width: 400px; height: 300px; overflow: hidden; background: var(--picker-background, #fff); }
+    #picker ul { margin: 0; padding: 4px 0 0; list-style: none; height: 100%; }
+    #picker .pane { height: 100%; background: var(--picker-background, #fff); }
+    #picker .search { margin: 8px 16px; height: 36px; background: #ddd; }
+    #picker .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px; }
+    #picker .grid div { height: 60px; background: #888; }
+    #menu { left: 480px; top: 40px; width: 220px; background: #fff; }
+    #menu ul { margin: 0; padding: 8px 0; list-style: none; }
+    #menu li { padding: 10px 16px; }
+    #menu li.on { background: #eee; }
+    [role="dialog"] { left: 480px; top: 240px; width: 300px; height: 200px; background: #fff; }
+    [role="dialog"] header { height: 56px; background: #f0f0f0; }
+    [role="dialog"] .body { height: 144px; background: #fff; }
+  </style>
+</head>
+<body>
+  <div id="picker" class="pos">
+    <div id="expressions-panel-container"><span>
+      <div role="application">
+        <ul data-testid="expressions-panel">
+          <li class="pane">
+            <div class="search"></div>
+            <div class="grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+          </li>
+        </ul>
+      </div>
+    </span></div>
+  </div>
+
+  <div id="menu" class="pos" role="application">
+    <ul>
+      <li>lorem ipsum</li>
+      <li class="on" aria-selected="true">dolor sit</li>
+      <li>amet</li>
+    </ul>
+  </div>
+
+  <div class="pos" role="dialog" aria-label="lorem">
+    <header></header>
+    <div class="body"></div>
+  </div>
+</body>
+</html>

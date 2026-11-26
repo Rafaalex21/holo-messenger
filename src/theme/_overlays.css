@@ -4,18 +4,26 @@
  * === SELECTORS === (docs/selectors.md §3)
  * Atenção: nenhum menu ou modal estava aberto na inspeção (itens ❓ no mapa).
  * Os seletores abaixo são os papéis ARIA genéricos; confirmar na próxima
- * inspeção (npm run recon) e ajustar.
+ * inspeção (npm run recon) e ajustar. Confirmado no WA real (2026-11-26): o
+ * painel de emojis/GIFs/figurinhas é [role="application"] > ul[data-testid="expressions-panel"].
  *   [role="menu"], [role="menuitem"], [role="application"] ul > li
  *   [role="dialog"], [role="heading"]                título de modal e de painel
  *   [role="tooltip"]
  *   [data-testid="drawer-right"], [data-testid="drawer-left"], [data-testid="drawer-title-body"]
  */
 
-/* ---------- C17: menus ---------- */
+/* A moldura de menus e modais é `outline` para dentro, não sombra interna:
+ * o outline é pintado por cima dos filhos, e a sombra interna fica embaixo
+ * de qualquer bloco com fundo encostado na borda (o painel de figurinhas
+ * perdia os lados e a base; o item de menu em foco, o lado esquerdo). */
+
+/* ---------- C17: menus (e o painel de emojis/GIFs/figurinhas) ---------- */
 :root[data-holo] :is([role="menu"], [role="application"]:has(> ul)) {
   background: var(--holo-bg-elev) !important;
   border-radius: 0 !important;
-  box-shadow: inset 0 0 0 1px var(--holo-accent), 0 0 14px rgb(0 0 0 / .6), var(--holo-glow) !important;
+  outline: 1px solid var(--holo-accent) !important;
+  outline-offset: -1px !important;
+  box-shadow: 0 0 14px rgb(0 0 0 / .6), var(--holo-glow) !important;
 }
 
 :root[data-holo] :is([role="menu"], [role="application"]:has(> ul)) * {
@@ -36,7 +44,9 @@
 /* ---------- C18: modais ---------- */
 :root[data-holo] [role="dialog"] {
   border-radius: 0 !important;
-  box-shadow: inset 0 0 0 1px var(--holo-accent), 0 0 24px rgb(0 0 0 / .7), var(--holo-glow) !important;
+  outline: 1px solid var(--holo-accent) !important;
+  outline-offset: -1px !important;
+  box-shadow: 0 0 24px rgb(0 0 0 / .7), var(--holo-glow) !important;
 }
 
 :root[data-holo] [role="dialog"] :is(h1, h2, [role="heading"]) {
