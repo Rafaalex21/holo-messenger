@@ -116,8 +116,11 @@ the zip.
 
 ## Para lembrar
 
-- **Id da extensão:** `holo-messenger@local`. Depois do primeiro envio não
-  muda mais: as atualizações só chegam a quem instalou se o id for o mesmo.
+- **Id da extensão:** `holo-messenger@rafaalex21.github.io`. Depois do
+  primeiro envio não muda mais: as atualizações só chegam a quem instalou se
+  o id for o mesmo. O primeiro id (`holo-messenger@local`) ficou bloqueado na
+  AMO em 26/11/2026, porque a extensão enviada com ele foi apagada: id de
+  extensão apagada não volta a ser aceito.
 - **Sons:** os três vão na versão da loja, decidido em 25/11/2026. Se a
   Mozilla ou a CD PROJEKT RED pedirem, a saída é tirar os arquivos e deixar o
   modo "WhatsApp" como padrão.

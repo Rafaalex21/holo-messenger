@@ -7,7 +7,7 @@
   "description": "__MSG_extDescription__",
   "browser_specific_settings": {
     "gecko": {
-      "id": "holo-messenger@local",
+      "id": "holo-messenger@rafaalex21.github.io",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
         "required": [

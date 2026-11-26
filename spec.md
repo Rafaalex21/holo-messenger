@@ -200,7 +200,7 @@ Fontes: **Rajdhani** e **Share Tech Mono** (Google Fonts, licença OFL), **empac
   "description": "Tema estilo Cyberpunk 2077 e som de notificação personalizado para o WhatsApp Web.",
   "browser_specific_settings": {
     "gecko": {
-      "id": "holo-messenger@local",
+      "id": "holo-messenger@rafaalex21.github.io",
       "strict_min_version": "140.0",
       "data_collection_permissions": { "required": ["none"] }
     }
