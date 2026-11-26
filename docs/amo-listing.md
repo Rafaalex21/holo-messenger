@@ -82,6 +82,11 @@ the zip.
 **Privacy policy:** not needed. The manifest declares
 `data_collection_permissions: none`.
 
+**Icon:** `web-ext-artifacts/amo/icone-128.png` (fora do git): o
+`assets/icons/icon.svg` desenhado num PNG de 128 × 128 com fundo
+transparente, pelo Firefox do Playwright. A ficha não aceita SVG; a
+extensão em si continua usando o SVG.
+
 **Screenshots** (in this order, with these captions):
 
 1. `1-tema-amarelo.png`: The whole WhatsApp Web screen with the theme.
