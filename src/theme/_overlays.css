@@ -6,6 +6,7 @@
  * Os seletores abaixo são os papéis ARIA genéricos; confirmar na próxima
  * inspeção (npm run recon) e ajustar. Confirmado no WA real (2026-11-26): o
  * painel de emojis/GIFs/figurinhas é [role="application"] > ul[data-testid="expressions-panel"].
+ *   [data-testid="expressions-panel"]               painel de emojis/GIFs/figurinhas
  *   [role="menu"], [role="menuitem"], [role="application"] ul > li
  *   [role="dialog"], [role="heading"]                título de modal e de painel
  *   [role="tooltip"]
@@ -24,6 +25,25 @@
   outline: 1px solid var(--holo-accent) !important;
   outline-offset: -1px !important;
   box-shadow: 0 0 14px rgb(0 0 0 / .6), var(--holo-glow) !important;
+}
+
+/* Painel de emojis/GIFs/figurinhas: dentro dele há blocos com position:
+ * relative e com transform, do tamanho do painel e de fundo opaco. Esses o
+ * Firefox pinta depois do outline do pai, então a moldura vai num ::after
+ * por cima de tudo. O painel já é absolute com z-index (medido no WA real),
+ * então o ::after fica preso a ele. Só aqui: num menu que não seja
+ * posicionado, o ::after se prenderia a um ancestral e emolduraria a tela. */
+:root[data-holo] [role="application"]:has(> [data-testid="expressions-panel"]) {
+  outline: none !important;
+}
+
+:root[data-holo] [role="application"]:has(> [data-testid="expressions-panel"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2147483647;
+  border: 1px solid var(--holo-accent);
+  pointer-events: none;
 }
 
 :root[data-holo] :is([role="menu"], [role="application"]:has(> ul)) * {

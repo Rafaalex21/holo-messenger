@@ -7,9 +7,11 @@
     Código nosso (pode ir para o repositório). Três sobreposições abertas ao
     mesmo tempo, com a estrutura que o tema encontra no WhatsApp:
     - painel de emojis/figurinhas: #expressions-panel-container >
-      [role=application] > ul[data-testid=expressions-panel] e, dentro, um
-      bloco do tamanho do painel com fundo opaco (medido no WA real em
-      2026-11-26: só tag, role, data-testid, tamanho e cores);
+      [role=application] (absolute, z-index 800, em posição fracionária) >
+      ul[data-testid=expressions-panel] e, dentro, blocos do tamanho do painel
+      com fundo opaco: um com transform, outros com position: relative, e a
+      barra de baixo com borda no topo (medido no WA real em 2026-11-26: só
+      tag, role, data-testid, tamanho, posição e cores);
     - menu de contexto: [role=application] > ul > li, com o item em foco pintado
       de ponta a ponta;
     - janela: [role=dialog] com um cabeçalho de fundo opaco encostado na borda.
@@ -18,13 +20,16 @@
   <style>
     body { margin: 0; font: 15px system-ui, sans-serif; background: #111; color: #ddd; }
     .pos { position: absolute; }
-    #picker { left: 40px; top: 40px; }
-    #picker [role="application"] { width: 400px; height: 300px; overflow: hidden; background: var(--picker-background, #fff); }
-    #picker ul { margin: 0; padding: 4px 0 0; list-style: none; height: 100%; }
-    #picker .pane { height: 100%; background: var(--picker-background, #fff); }
-    #picker .search { margin: 8px 16px; height: 36px; background: #ddd; }
+    #picker [role="application"] { position: absolute; z-index: 800; left: 33.48px; top: 27.45px; width: 400px; height: 330.1px; overflow: hidden; padding-top: 5px; box-sizing: border-box; background: var(--picker-background, #fff); }
+    #picker ul { margin: 0; padding: 0; list-style: none; }
+    #picker .pane { height: 276.1px; overflow: hidden; transform: translateX(0); background: var(--picker-background, #fff); }
+    #picker .search { height: 46px; padding: 8px 16px; box-sizing: border-box; }
+    #picker .search div { height: 30px; background: #ddd; }
+    #picker .content { position: relative; height: 230.1px; background: var(--picker-background, #fff); }
+    #picker .scroll { position: relative; height: 200px; overflow: auto; background: var(--picker-background, #fff); }
     #picker .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px; }
     #picker .grid div { height: 60px; background: #888; }
+    #picker .tabs { height: 49px; border-top: 1px solid #333; }
     #menu { left: 480px; top: 40px; width: 220px; background: #fff; }
     #menu ul { margin: 0; padding: 8px 0; list-style: none; }
     #menu li { padding: 10px 16px; }
@@ -35,14 +40,19 @@
   </style>
 </head>
 <body>
-  <div id="picker" class="pos">
+  <div id="picker">
     <div id="expressions-panel-container"><span>
       <div role="application">
         <ul data-testid="expressions-panel">
-          <li class="pane">
-            <div class="search"></div>
-            <div class="grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+          <li>
+            <div class="pane">
+              <div class="search"><div></div></div>
+              <div class="content"><div class="scroll">
+                <div class="grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+              </div></div>
+            </div>
           </li>
+          <li class="tabs"></li>
         </ul>
       </div>
     </span></div>

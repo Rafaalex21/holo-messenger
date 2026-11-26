@@ -40,11 +40,14 @@ async function frames(page) {
     for (const bx of boxes) {
       for (const t of [0.1, 0.3, 0.5, 0.7, 0.9]) {
         const y = Math.round(bx.y + (bx.b - bx.y) * t), x = Math.round(bx.x + (bx.r - bx.x) * t);
+        // o painel do WhatsApp fica em posição fracionária (x=373,48): a borda
+        // nítida cai no pixel arredondado
+        const L = Math.round(bx.x), R = Math.round(bx.r) - 1, T = Math.round(bx.y), B = Math.round(bx.b) - 1;
         const sides = {
-          esquerdo: [[bx.x, y], [bx.x + 1, y]],
-          direito: [[bx.r - 1, y], [bx.r - 2, y]],
-          topo: [[x, bx.y], [x, bx.y + 1]],
-          base: [[x, bx.b - 1], [x, bx.b - 2]]
+          esquerdo: [[L, y], [L + 1, y]],
+          direito: [[R, y], [R - 1, y]],
+          topo: [[x, T], [x, T + 1]],
+          base: [[x, B], [x, B - 1]]
         };
         for (const [side, [edge, inner]] of Object.entries(sides)) {
           out.push({ where: `${bx.name}, lado ${side} (${t})`, edge: Math.round(dist(...edge)), inner: Math.round(dist(...inner)) });
