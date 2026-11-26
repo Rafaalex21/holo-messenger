@@ -29,9 +29,14 @@ A ficha vai só em inglês. A AMO usa a `default_locale` do manifest (`en`)
 como idioma da ficha; o popup continua em português para quem usa o Firefox
 em português.
 
-**Name:** Holo-Messenger: Cyberpunk theme for WhatsApp Web
+**Name:** Holo-Messenger
 
-**Slug:** holo-messenger
+(A AMO aceita no máximo 30 caracteres no nome da ficha. O nome do
+manifest, "Holo-Messenger: Cyberpunk theme for WhatsApp Web", é o que
+aparece no gerenciador de extensões do Firefox e não tem esse limite.)
+
+**Slug:** holo-messenger (o formulário sugere um endereço a partir do nome
+antigo: clicar em "Editar" ao lado da URL e trocar)
 
 **Summary** (up to 250 characters):
 
