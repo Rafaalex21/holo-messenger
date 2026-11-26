@@ -25,48 +25,15 @@ de mentira dos testes, sem nenhuma conversa real.
 
 ## Campos do formulário
 
-**Nome:** Holo-Messenger: tema para WhatsApp Web
-
-**Endereço (slug):** holo-messenger
-
-**Resumo** (até 250 caracteres):
-
-> Deixa o WhatsApp Web com cara de celular de Cyberpunk 2077: balões
-> chanfrados com moldura neon, scanlines, glitch nas mensagens novas e os sons
-> do jogo para mensagem e ligação. Projeto de fã, não oficial.
-
-**Descrição:**
-
-> Tema para o WhatsApp Web inspirado no app de mensagens do celular de
-> Cyberpunk 2077.
->
-> - Balões com canto chanfrado e moldura fina; recebidos em ciano, enviados
->   em amarelo ou verde-água.
-> - Fontes no estilo do jogo, scanlines, brilho e um glitch rápido quando
->   chega mensagem nova (cada efeito liga e desliga no popup).
-> - Rodapé com os botões de controle: Microsoft (Y / B) ou Sony (△ / ○).
-> - Sons do jogo para mensagem recebida, ligação recebida e "chamando"
->   quando você liga. No popup dá para voltar aos sons do WhatsApp ou deixar
->   tudo mudo, e mudar o volume.
-> - Tudo muda na hora, sem recarregar a página.
->
-> Privacidade: a extensão não lê suas mensagens, nomes nem números, não manda
-> nada para lugar nenhum e não tem servidor. Ela só guarda as suas escolhas
-> (paleta, efeitos, som) no próprio Firefox.
->
-> Projeto de fã sem fins comerciais. Não é afiliado à CD PROJEKT RED nem ao
-> WhatsApp/Meta. Cyberpunk 2077 e os sons do jogo são © CD PROJEKT RED.
-
-### Em inglês
-
-A extensão tem popup em português e inglês (`_locales/`; qualquer outro
-idioma do Firefox cai no inglês). Na AMO, a ficha em inglês entra em **Edit
-Product Page**, trocando o idioma no seletor do topo do formulário para
-English (US).
+A ficha vai só em inglês. A AMO usa a `default_locale` do manifest (`en`)
+como idioma da ficha; o popup continua em português para quem usa o Firefox
+em português.
 
 **Name:** Holo-Messenger: Cyberpunk theme for WhatsApp Web
 
-**Summary:**
+**Slug:** holo-messenger
+
+**Summary** (up to 250 characters):
 
 > Makes WhatsApp Web look like the phone in Cyberpunk 2077: chamfered
 > bubbles with neon frames, scanlines, glitch on new messages and the game's
@@ -96,26 +63,26 @@ English (US).
 > Unofficial, non-commercial fan project. Not affiliated with CD PROJEKT RED
 > or WhatsApp/Meta. Cyberpunk 2077 and the game's sounds are © CD PROJEKT RED.
 
-**Categoria:** Aparência
+**Category:** Appearance
 
-**Tags:** whatsapp, tema, cyberpunk, dark mode
+**Tags:** whatsapp, theme, cyberpunk, dark mode
 
-**Site / suporte:** https://github.com/Rafaalex21/holo-messenger (problemas em
-`/issues`). E-mail de suporte: deixar em branco.
+**Homepage / Support site:** https://github.com/Rafaalex21/holo-messenger
+(issues at `/issues`). Support email: leave blank.
 
-**Licença:** MIT (decidido em 25/11/2026). Vale só para o código: os sons
-ficam de fora (`assets/sounds/NOTICE.md`) e as fontes são OFL. O arquivo
-`LICENSE` vai no zip.
+**License:** MIT. Covers the code only: the sounds are excluded
+(`assets/sounds/NOTICE.md`) and the fonts are OFL. The `LICENSE` file is in
+the zip.
 
-**Política de privacidade:** não precisa. O manifest declara
+**Privacy policy:** not needed. The manifest declares
 `data_collection_permissions: none`.
 
-**Capturas** (nesta ordem):
+**Screenshots** (in this order, with these captions):
 
-1. `1-tema-amarelo.png`: a tela inteira com o tema.
-2. `2-baloes-amarelo.png`: balões com citação, lista e reação.
-3. `3-baloes-verde-agua.png`: a mesma conversa na paleta verde-água.
-4. `4-popup.png`: o popup com paleta, efeitos, botões e som.
+1. `1-tema-amarelo.png`: The whole WhatsApp Web screen with the theme.
+2. `2-baloes-amarelo.png`: Bubbles with a quote, a list and a reaction.
+3. `3-baloes-verde-agua.png`: The same chat in the teal palette.
+4. `4-popup.png`: The popup: palette, effects, footer buttons and sound.
 
 ## Notas para o revisor (campo "Notes to reviewer")
 
@@ -129,16 +96,16 @@ ficam de fora (`assets/sounds/NOTICE.md`) e as fontes são OFL. O arquivo
 >   calls it mutes the call's audio element only while the "calling" screen
 >   is up without the call timer (max 70 s), so the extension's ringback can
 >   play instead. It never reads message text, names or numbers.
-> - `src/content/content.js` finds WhatsApp's own buttons (voice call, the
->   header menu, "Close chat", send) by the icon name WhatsApp puts in each
->   button's `<svg><title>` (e.g. `ic-call`), so it works in any UI
->   language. It only clicks them when the user presses the extension's
->   CALL / CLOSE buttons.
 > - The same script subclasses `window.Notification` and wraps
 >   `ServiceWorkerRegistration.prototype.showNotification` only to add
 >   `silent: true` when the user picked the game sounds or mute, so the OS
 >   chime does not play on top. Title, body and icon pass through untouched
 >   and are never read.
+> - `src/content/content.js` finds WhatsApp's own buttons (voice call, the
+>   header menu, "Close chat", send) by the icon name WhatsApp puts in each
+>   button's `<svg><title>` (e.g. `ic-call`), so it works in any UI
+>   language. It only clicks them when the user presses the extension's
+>   CALL / CLOSE buttons.
 > - `src/content/sound.js` plays the bundled MP3s with Web Audio; the
 >   background page is a fallback when the tab has no autoplay permission.
 > - Storage: only the user's settings in `storage.local`. No network requests
