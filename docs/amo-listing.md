@@ -6,8 +6,13 @@ site (listada)**, grátis.
 ## Antes de enviar
 
 ```
-npm run package
+cd "C:\Users\Rafael\Documents\Tema Cyberpunk 2077"
+npm.cmd run package
 ```
+
+Rodar na pasta do projeto (senão o npm não acha o `package.json`). No
+PowerShell, `npm.cmd` em vez de `npm`: o Windows bloqueia o `npm.ps1` pela
+política de execução de scripts. No cmd, `npm` funciona.
 
 Roda o `web-ext lint` (tem que dar 0 erros e 0 avisos), gera
 `web-ext-artifacts/holo-messenger-<versão>.zip` e confere o zip com
